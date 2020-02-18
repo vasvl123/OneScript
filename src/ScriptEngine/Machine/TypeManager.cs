@@ -7,8 +7,8 @@ at http://mozilla.org/MPL/2.0/.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ScriptEngine.Machine.Contexts;
+using ScriptEngine.Machine.Values;
 
 namespace ScriptEngine.Machine
 {
@@ -94,7 +94,7 @@ namespace ScriptEngine.Machine
 
             }
 
-            RegisterType("Null", typeof(NullValueImpl));
+            RegisterType("Null", typeof(NullValue));
         }
 
         #region ITypeManager Members
@@ -226,10 +226,12 @@ namespace ScriptEngine.Machine
     public static class TypeManager
     {
         private static ITypeManager _instance;
+        private static Dictionary<Type, TypeFactory> _factories;
 
         internal static void Initialize(ITypeManager instance)
         {
             _instance = instance;
+            _factories = new Dictionary<Type, TypeFactory>();
         }
 
         public static ITypeManager Instance => _instance;
@@ -292,7 +294,7 @@ namespace ScriptEngine.Machine
             }
         }
 
-        public static Type GetFactoryFor(string typeName)
+        public static TypeFactory GetFactoryFor(string typeName)
         {
             int typeId;
             Type clrType;
@@ -313,7 +315,13 @@ namespace ScriptEngine.Machine
                 }
             }
 
-            return clrType;
+            if(!_factories.TryGetValue(clrType, out var factory))
+            {
+                factory = new TypeFactory(clrType);
+                _factories[clrType] = factory;
+            }
+
+            return factory;
         }
     }
 

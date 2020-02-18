@@ -4,7 +4,7 @@ Mozilla Public License, v.2.0. If a copy of the MPL
 was not distributed with this file, You can obtain one 
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
-using ScriptEngine.HostedScript.Library;
+
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
 using System;
@@ -22,7 +22,7 @@ namespace ScriptEngine.HostedScript.Library.DriveInfo
         }
 
         [ScriptConstructor]
-        public static IRuntimeContextInstance Constructor(IValue driveName)
+        public static DriveInfo Constructor(IValue driveName)
         {
             return new DriveInfo(driveName.AsString());
         }

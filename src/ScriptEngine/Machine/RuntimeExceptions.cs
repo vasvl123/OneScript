@@ -6,8 +6,7 @@ at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using OneScript.Language;
 
 namespace ScriptEngine.Machine
 {
@@ -77,12 +76,12 @@ namespace ScriptEngine.Machine
         
         public static RuntimeException MethodNotFoundException(string methodName)
         {
-            return new RuntimeException(string.Format("Метод объекта не обнаружен ({0})", methodName));
+            return new RuntimeException($"Метод объекта не обнаружен ({methodName})");
         }
 
         public static RuntimeException MethodNotFoundException(string methodName, string objectName)
         {
-            return new RuntimeException(string.Format("Метод объекта не обнаружен ({{{1}}}::{0})", methodName, objectName));
+            return new RuntimeException($"Метод объекта не обнаружен ({{{objectName}}}::{methodName})");
         }
 
         public static RuntimeException ValueIsNotObjectException()
@@ -95,7 +94,7 @@ namespace ScriptEngine.Machine
             return new RuntimeException("Слишком много фактических параметров");
         }
 
-        public static RuntimeException TooLittleArgumentsPassed()
+        public static RuntimeException TooFewArgumentsPassed()
         {
             return new RuntimeException("Недостаточно фактических параметров");
         }
@@ -110,7 +109,12 @@ namespace ScriptEngine.Machine
             return new RuntimeException(String.Format("Неверный тип аргумента '{0}'", argName));
         }
 
-        public static RuntimeException InvalidArgumentType(int argNum, string argName="" )
+        public static RuntimeException InvalidNthArgumentType(int argNum)
+        {
+            return new RuntimeException(String.Format("Неверный тип аргумента номер {0}", argNum));
+        }
+
+        public static RuntimeException InvalidArgumentType(int argNum, string argName )
         {
             return new RuntimeException(String.Format("Неверный тип аргумента номер {0} '{1}'", argNum, argName ));
         }
@@ -118,6 +122,11 @@ namespace ScriptEngine.Machine
         public static RuntimeException InvalidArgumentValue()
         {
             return new RuntimeException("Неверное значение аргумента");
+        }
+
+        public static RuntimeException InvalidNthArgumentValue(int argNum)
+        {
+            return new RuntimeException(String.Format("Неверное значение аргумента номер {0}", argNum));
         }
 
         public static RuntimeException InvalidArgumentValue(object value)
@@ -149,7 +158,6 @@ namespace ScriptEngine.Machine
         {
             return new RuntimeException("Деление на ноль");
         }
-
 
     }
 

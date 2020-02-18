@@ -5,10 +5,6 @@ was not distributed with this file, You can obtain one
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ScriptEngine;
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
 
@@ -169,7 +165,7 @@ namespace ScriptEngine.HostedScript.Library
         }
 
         [ScriptConstructor]
-        public static IRuntimeContextInstance Constructor()
+        public static ConsoleContext Constructor()
         {
             return new ConsoleContext();
         }

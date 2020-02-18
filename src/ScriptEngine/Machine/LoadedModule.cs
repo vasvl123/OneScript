@@ -4,12 +4,9 @@ Mozilla Public License, v.2.0. If a copy of the MPL
 was not distributed with this file, You can obtain one 
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
-using ScriptEngine.Compiler;
+
 using ScriptEngine.Environment;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace ScriptEngine.Machine
 {
@@ -33,8 +30,17 @@ namespace ScriptEngine.Machine
                 var def = image.Constants[i];
                 Constants[i] = ValueFactory.Parse(def.Presentation, def.Type);
             }
-            
-            // Resolve annotation constants
+
+            ResolveAnnotationConstants();
+        }
+
+        private void ResolveAnnotationConstants()
+        {
+            for (int i = 0; i < Variables.Count; i++)
+            {
+                EvaluateAnnotationParametersValues(Variables[i].Annotations);
+            }
+
             for (int i = 0; i < Methods.Length; i++)
             {
                 EvaluateAnnotationParametersValues(Methods[i].Signature.Annotations);
@@ -43,7 +49,6 @@ namespace ScriptEngine.Machine
                     EvaluateAnnotationParametersValues(Methods[i].Signature.Params[j].Annotations);
                 }
             }
-
         }
 
         private void EvaluateAnnotationParametersValues(AnnotationDefinition[] annotations)

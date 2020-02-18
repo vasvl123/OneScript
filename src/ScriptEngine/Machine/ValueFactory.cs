@@ -5,10 +5,8 @@ was not distributed with this file, You can obtain one
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
+using ScriptEngine.Machine.Values;
 
 namespace ScriptEngine.Machine
 {
@@ -16,42 +14,42 @@ namespace ScriptEngine.Machine
     {
         public static IValue Create()
         {
-            return SimpleConstantValue.Undefined();
+            return UndefinedValue.Instance;
         }
 
         public static IValue Create(string value)
         {
-            return new StringConstantValue(value);
+            return StringValue.Create(value);
         }
 
         public static IValue Create(bool value)
         {
-            return SimpleConstantValue.Boolean(value);
+            return value ? BooleanValue.True : BooleanValue.False;
         }
 
         public static IValue Create(decimal value)
         {
-            return SimpleConstantValue.Number(value);
+            return NumberValue.Create(value);
         }
 
         public static IValue Create(int value)
         {
-            return SimpleConstantValue.Number(value);
+            return NumberValue.Create(value);
         }
 
         public static IValue Create(DateTime value)
         {
-            return SimpleConstantValue.DateTime(value);
+            return new DateValue(value);
         }
 
         public static IValue CreateInvalidValueMarker()
         {
-            return new InvalidValue();
+            return InvalidValue.Instance;
         }
 
         public static IValue CreateNullValue()
         {
-            return NullValueImpl.Instance;
+            return NullValue.Instance;
         }
 
         public static IValue Create(IRuntimeContextInstance instance)
@@ -89,14 +87,21 @@ namespace ScriptEngine.Machine
                     else
                         throw RuntimeException.ConvertToDateException();
 
-                    try
+                    if (presentation == "00000000"
+                     || presentation == "000000000000"
+                     || presentation == "00000000000000")
                     {
-                        result = ValueFactory.Create(DateTime.ParseExact(presentation, format, System.Globalization.CultureInfo.InvariantCulture));
+                        result = ValueFactory.Create(new DateTime());
                     }
-                    catch (FormatException)
-                    {
-                        throw RuntimeException.ConvertToDateException();
-                    }
+                    else
+                        try
+                        {
+                            result = ValueFactory.Create(DateTime.ParseExact(presentation, format, System.Globalization.CultureInfo.InvariantCulture));
+                        }
+                        catch (FormatException)
+                        {
+                            throw RuntimeException.ConvertToDateException();
+                        }
 
                     break;
                 case DataType.Number:
@@ -122,7 +127,7 @@ namespace ScriptEngine.Machine
                     result = ValueFactory.Create();
                     break;
                 case DataType.GenericValue:
-                    if (string.Compare(presentation, "null", true) == 0)
+                    if (string.Compare(presentation, "null", StringComparison.OrdinalIgnoreCase) == 0)
                         result = ValueFactory.CreateNullValue();
                     else
                         throw new NotImplementedException("constant type is not supported");
@@ -137,18 +142,15 @@ namespace ScriptEngine.Machine
 
         class InvalidValue : IValue
         {
+            private static IValue _instance = new InvalidValue();
+
+            internal static IValue Instance => _instance;
 
             #region IValue Members
 
-            public DataType DataType
-            {
-                get { return Machine.DataType.NotAValidValue; }
-            }
+            public DataType DataType => DataType.NotAValidValue;
 
-            public TypeDescriptor SystemType
-            {
-                get { throw new NotImplementedException(); }
-            }
+            public TypeDescriptor SystemType => throw new NotImplementedException();
 
             public decimal AsNumber()
             {
@@ -195,7 +197,7 @@ namespace ScriptEngine.Machine
 
             public bool Equals(IValue other)
             {
-                return other.GetRawValue().DataType == DataType;
+                return ReferenceEquals(other, this);
             }
 
             #endregion

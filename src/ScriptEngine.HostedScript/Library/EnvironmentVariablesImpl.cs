@@ -9,9 +9,6 @@ using ScriptEngine.Machine.Contexts;
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace ScriptEngine.HostedScript.Library
 {
@@ -30,7 +27,7 @@ namespace ScriptEngine.HostedScript.Library
         /// </example>
         /// <returns>Соответствие</returns>
         [ContextMethod("ПеременныеСреды", "EnvironmentVariables")]
-        public IRuntimeContextInstance EnvironmentVariables(EnvironmentVariableTargetEnum target = EnvironmentVariableTargetEnum.Process)
+        public MapImpl EnvironmentVariables(EnvironmentVariableTargetEnum target = EnvironmentVariableTargetEnum.Process)
         {
             EnvironmentVariableTarget targetParam = GetSystemEnvVariableTarget(target);
             var varsMap = new MapImpl();

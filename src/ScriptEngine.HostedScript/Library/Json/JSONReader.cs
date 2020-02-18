@@ -22,6 +22,11 @@ namespace ScriptEngine.HostedScript.Library.Json
 
         private JsonTextReader _reader; // Объект из библиотеки Newtonsoft для работы с форматом JSON 
 
+        RuntimeException NotOpenException()
+        {
+            return new RuntimeException(Locale.NStr("ru='Источник данных JSON не открыт'; en='JSON data source is not opened'"));
+        }
+
         /// <summary>
         /// 
         /// Возвращает true если для объекта чтения json был задан текст для парсинга.
@@ -36,7 +41,7 @@ namespace ScriptEngine.HostedScript.Library.Json
         }
 
         [ScriptConstructor]
-        public static IRuntimeContextInstance Constructor()
+        public static JSONReader Constructor()
         {
             return new JSONReader();
         }
@@ -124,11 +129,45 @@ namespace ScriptEngine.HostedScript.Library.Json
                         decimal d = Convert.ToDecimal(_reader.Value);
                         return ValueFactory.Create(d);
                     }
+                    else if (type == JsonToken.Date)
+                    {
+                        return ValueFactory.Create((DateTime)_reader.Value);
+                    }
+                    else if (type == JsonToken.Null)
+                    {
+                        return ValueFactory.CreateNullValue();
+                    }
+                    else if (type == JsonToken.Undefined)
+                    {
+                        return ValueFactory.Create();
+                    }
                     else
-                        throw new RuntimeException("Ошибка при получении значения атрибута контекста (ТекущееЗначение): Текущее значение JSON не может быть получено");
+                        throw new RuntimeException(Locale.NStr("ru='Текущее значение JSON не может быть получено';en='Cannot get current JSON value'"));
                 }
                 else
-                    throw new RuntimeException("Источник данных JSON не открыт");
+                {
+                    throw NotOpenException();
+                }
+                    
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// Тип текущего значения в документе JSON во внутреннем формате.
+        /// null - если чтение еще не началось или достигнут конец файла.
+        /// </summary>
+        /// <value>CurrentJsonTokenType</value>
+        public JsonToken CurrentJsonTokenType
+        {
+            get
+            {
+                if (IsOpen())
+                {
+                    return _reader.TokenType;
+                }
+                else
+                    throw NotOpenException();
             }
         }
 
@@ -191,7 +230,7 @@ namespace ScriptEngine.HostedScript.Library.Json
 
                 }
                 else
-                    throw new RuntimeException("Источник данных JSON не открыт");
+                    throw NotOpenException();
             }
 
         }
@@ -282,7 +321,7 @@ namespace ScriptEngine.HostedScript.Library.Json
 
             }
             else
-                throw new RuntimeException("Источник данных JSON не открыт");
+                throw NotOpenException();
 
         }
 
@@ -295,6 +334,7 @@ namespace ScriptEngine.HostedScript.Library.Json
         public bool Read()
         {
             return _reader.Read();
+            
         }
 
 

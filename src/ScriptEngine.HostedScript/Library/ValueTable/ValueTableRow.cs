@@ -4,10 +4,8 @@ Mozilla Public License, v.2.0. If a copy of the MPL
 was not distributed with this file, You can obtain one 
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
-using System;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using ScriptEngine.Machine.Contexts;
 using ScriptEngine.Machine;
 
@@ -130,12 +128,7 @@ namespace ScriptEngine.HostedScript.Library.ValueTable
 
         public override int FindProperty(string name)
         {
-            ValueTableColumn C = Owner().Columns.FindColumnByName(name);
-            
-            if (C == null)
-                throw RuntimeException.PropNotFoundException(name);
-
-            return C.ID;
+            return Owner().Columns.FindProperty(name);
         }
 
         public override bool IsPropReadable(int propNum)
@@ -150,13 +143,13 @@ namespace ScriptEngine.HostedScript.Library.ValueTable
 
         public override IValue GetPropValue(int propNum)
         {
-            ValueTableColumn C = Owner().Columns.FindColumnById(propNum);
+            ValueTableColumn C = Owner().Columns.FindColumnByIndex(propNum);
             return TryValue(C);
         }
 
 		public override void SetPropValue(int propNum, IValue newVal)
 		{
-			ValueTableColumn C = Owner().Columns.FindColumnById(propNum);
+			ValueTableColumn C = Owner().Columns.FindColumnByIndex(propNum);
 			_data[C] = C.ValueType.AdjustValue(newVal);
 		}
 

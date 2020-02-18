@@ -4,10 +4,11 @@ Mozilla Public License, v.2.0. If a copy of the MPL
 was not distributed with this file, You can obtain one 
 at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
-using System;
+
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
 using System.Collections.Generic;
+using ScriptEngine.Machine.Values;
 
 namespace ScriptEngine.HostedScript.Library
 {
@@ -186,7 +187,7 @@ namespace ScriptEngine.HostedScript.Library
 		}
 
 		[ScriptConstructor]
-		public static IRuntimeContextInstance Constructor(
+		public static TypeDescription Constructor(
 			IValue source = null,
 			IValue p1 = null,
 			IValue p2 = null,
@@ -217,7 +218,7 @@ namespace ScriptEngine.HostedScript.Library
 			throw RuntimeException.InvalidArgumentValue();
 		}
 
-		public static IRuntimeContextInstance ConstructByQualifiers(
+		public static TypeDescription ConstructByQualifiers(
 			IValue types,
 			IValue numberQualifiers = null,
 			IValue stringQualifiers = null,
@@ -236,7 +237,7 @@ namespace ScriptEngine.HostedScript.Library
 			return new TypeDescription(_types, paramNumberQ, paramStringQ, paramDateQ, paramBinaryDataQ);
 		}
 
-		public static IRuntimeContextInstance ConstructByOtherDescription(
+		public static TypeDescription ConstructByOtherDescription(
 			IValue typeDescription = null,
 			IValue addTypes = null,
 			IValue removeTypes = null,

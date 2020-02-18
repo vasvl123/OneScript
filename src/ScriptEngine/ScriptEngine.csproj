@@ -4,7 +4,8 @@
   
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
-    <Configurations>Debug;Release;ReleaseNetStandard</Configurations>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   
   <PropertyGroup>
@@ -13,7 +14,7 @@
   
   <PropertyGroup>
     <PackageId>OneScript</PackageId>
-    <PackageVersion>1.0.$(ReleaseNumber)$(Suffix)</PackageVersion>
+    <PackageVersion>$(ReleaseNumber)$(Suffix)</PackageVersion>
     <PackageAuthors>OneScript OpenSource Community</PackageAuthors>
     <PackageOwners>EvilBeaver &lt;ovsiankin.aa@gmail.com&gt;</PackageOwners>
     <PackageLicenseUrl>http://mozilla.org/MPL/2.0/</PackageLicenseUrl>
@@ -29,6 +30,10 @@
     <DocumentationFile>bin\Release\net452\ScriptEngine.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591</NoWarn>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\OneScript.Language\OneScript.Language.csproj" />
+  </ItemGroup>
   
   <Target Name="CopyToRunner" AfterTargets="Build" Condition="'$(TargetFramework)' == 'net452'">
     <Message Text="Copying StandaloneRunner resources" />

@@ -7,7 +7,6 @@ at http://mozilla.org/MPL/2.0/.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ScriptEngine.Environment;
 
 namespace ScriptEngine.Machine.Contexts
 {
@@ -20,17 +19,8 @@ namespace ScriptEngine.Machine.Contexts
         private MethodInfo[] _attachableMethods;
         private readonly Dictionary<string, int> _methodSearchCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, int> _propertySearchCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, int> _allPropertiesSearchCache = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        [Obsolete]
-        public ScriptDrivenObject(LoadedModuleHandle module) : this(module.Module)
-        {
-        }
-
-        [Obsolete]
-        public ScriptDrivenObject(LoadedModuleHandle module, bool deffered) : this(module.Module, deffered)
-        {
-        }
-        
         public LoadedModule Module => _module;
 
         protected ScriptDrivenObject(LoadedModule module, bool deffered)
@@ -44,7 +34,6 @@ namespace ScriptEngine.Machine.Contexts
         }
 
         protected ScriptDrivenObject(LoadedModule module)
-            : base(TypeManager.GetTypeByName("Object"))
         {
             _module = module;
             InitOwnData();
@@ -77,6 +66,17 @@ namespace ScriptEngine.Machine.Contexts
 
             ReadExportedSymbols(_module.ExportedMethods, _methodSearchCache);
             ReadExportedSymbols(_module.ExportedProperies, _propertySearchCache);
+            ReadVariables(_module.Variables, _allPropertiesSearchCache);
+
+        }
+
+        private void ReadVariables(VariablesFrame vars, Dictionary<string, int> searchCache)
+        {
+            for (int i = 0; i < vars.Count; i++)
+            {
+                var variable = vars[i];
+                searchCache[variable.Identifier] = variable.Index;
+            }
         }
 
         private void ReadExportedSymbols(ExportedSymbol[] exportedSymbols, Dictionary<string, int> searchCache)
@@ -142,6 +142,15 @@ namespace ScriptEngine.Machine.Contexts
             return returnValue;
         }
 
+        public Action<IValue[]> GetMethodExecutor(string methodName)
+        {
+            var id = GetScriptMethod(methodName);
+            if (id == -1)
+                throw RuntimeException.MethodNotFoundException(methodName, AsString());
+
+            return (args) => CallScriptMethod(id, args);
+        }
+        
         #region Own Members Call
 
         protected virtual int FindOwnProperty(string name)
@@ -360,6 +369,11 @@ namespace ScriptEngine.Machine.Contexts
         {
             return VARIABLE_COUNT + _module.ExportedProperies.Length;
         }
+        
+        public override int GetMethodsCount()
+        {
+            return METHOD_COUNT + _module.ExportedMethods.Length;
+        }
 
         public override string GetPropName(int propNum)
         {
@@ -374,6 +388,15 @@ namespace ScriptEngine.Machine.Contexts
         }
 
         #endregion
+
+        public int FindAnyProperty(string name)
+        {
+            int index;
+            if (_allPropertiesSearchCache.TryGetValue(name, out index))
+                return index;
+            else
+                throw RuntimeException.PropNotFoundException(name);
+        }
 
         public string[] GetExportedProperties()
         {

@@ -10,9 +10,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
 using ScriptEngine.Machine.Contexts;
 
 namespace ScriptEngine.Machine.Reflection
@@ -22,6 +19,8 @@ namespace ScriptEngine.Machine.Reflection
         private Type _declaringType;
         private bool _isPublic;
         private readonly VariableInfo _info;
+
+        private readonly List<UserAnnotationAttribute> _attributes = new List<UserAnnotationAttribute>();
 
         public ReflectedFieldInfo(VariableInfo info, bool isPublic)
         {
@@ -34,14 +33,25 @@ namespace ScriptEngine.Machine.Reflection
             _declaringType = declType;
         }
 
+        private IEnumerable<UserAnnotationAttribute> GetCustomAttributesInternal(bool inherit)
+        {
+            return _attributes;
+        }
+
         public override object[] GetCustomAttributes(bool inherit)
         {
-            return new object[0];
+            return GetCustomAttributesInternal(inherit).ToArray();
+        }
+
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            var attribs = GetCustomAttributesInternal(inherit);
+            return attribs.Where(x => x.GetType() == attributeType).ToArray();
         }
 
         public override bool IsDefined(Type attributeType, bool inherit)
         {
-            return false;
+            return GetCustomAttributes(inherit).Any(x => x.GetType() == attributeType);
         }
 
         public override object GetValue(object obj)
@@ -92,9 +102,12 @@ namespace ScriptEngine.Machine.Reflection
             get { throw new NotImplementedException(); }
         }
 
-        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+        public void AddAnnotation(AnnotationDefinition annotation)
         {
-            return GetCustomAttributes(inherit);
+            _attributes.Add(new UserAnnotationAttribute()
+            {
+                Annotation = annotation
+            });
         }
     }
 }

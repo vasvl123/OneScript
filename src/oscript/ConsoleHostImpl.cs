@@ -6,8 +6,7 @@ at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 
 using System;
-
-using ScriptEngine;
+using OneScript.Language;
 using ScriptEngine.HostedScript.Library;
 
 namespace oscript
@@ -55,15 +54,14 @@ namespace oscript
 		}
 
 		public static void ShowExceptionInfo(Exception exc)
-		{
-		    var exception = exc as ScriptException;
-		    if (exception != null)
-		    {
-		        var rte = exception;
-		        Echo(rte.MessageWithoutCodeFragment);
-		    }
+		{ 
+			if (exc is ScriptException exception)
+			{
+			    var rte = exception;
+			    Echo(rte.MessageWithoutCodeFragment);
+			}
 		    else
-		        Echo(exc.Message);
+		         Echo(exc.ToString());
 		}
 
 		public static bool InputString(out string result, int maxLen)

@@ -8,8 +8,8 @@ using System;
 using ScriptEngine.Environment;
 using ScriptEngine.HostedScript.Library;
 using ScriptEngine.Machine;
-using ScriptEngine.Machine.Contexts;
 using System.Collections.Generic;
+using ScriptEngine.Machine.Contexts;
 
 
 namespace ScriptEngine.HostedScript
@@ -21,6 +21,7 @@ namespace ScriptEngine.HostedScript
         private readonly RuntimeEnvironment _env;
         private bool _isInitialized;
         private bool _configInitialized;
+        private bool _librariesInitialized;
 
         private CodeStatProcessor _codeStat;
 
@@ -34,6 +35,16 @@ namespace ScriptEngine.HostedScript
             _globalCtx.EngineInstance = _engine;
 
             _env.InjectObject(_globalCtx, false);
+            GlobalsManager.RegisterInstance(_globalCtx);
+
+            InitializationCallback = (eng, env) =>
+            {
+                var templateFactory = new DefaultTemplatesFactory();
+                var storage = new TemplateStorage(templateFactory);
+                env.InjectObject(storage);
+                GlobalsManager.RegisterInstance(storage);
+            };
+
             _engine.Environment = _env;
         }
 
@@ -42,7 +53,7 @@ namespace ScriptEngine.HostedScript
         public void InitExternalLibraries(string systemLibrary, IEnumerable<string> searchDirs)
         {
             var libLoader = new LibraryResolver(_engine, _env);
-            _engine.DirectiveResolver = libLoader;
+            _engine.DirectiveResolvers.Add(libLoader);
 
             libLoader.LibraryRoot = systemLibrary;
             libLoader.SearchDirectories.Clear();
@@ -50,15 +61,11 @@ namespace ScriptEngine.HostedScript
             {
                 libLoader.SearchDirectories.AddRange(searchDirs);
             }
+
+            _librariesInitialized = true;
         }
 
-        public static string ConfigFileName
-        {
-            get
-            {
-                return EngineConfigProvider.CONFIG_FILE_NAME;
-            }
-        }
+        public static string ConfigFileName => EngineConfigProvider.CONFIG_FILE_NAME;
 
         public KeyValueConfig GetWorkingConfig()
         {
@@ -74,18 +81,29 @@ namespace ScriptEngine.HostedScript
 
         public string CustomConfig { get; set; }
 
+        public Action<ScriptingEngine, RuntimeEnvironment> InitializationCallback { get; set; }
+        
         public void Initialize()
         {
             if (!_isInitialized)
             {
+                InitializationCallback?.Invoke(_engine, _engine.Environment);
                 _engine.Initialize();
                 _isInitialized = true;
             }
+
+            // System language
+            var SystemLanguageCfg = GetWorkingConfig()["SystemLanguage"];
+
+            if (SystemLanguageCfg != null)
+                Locale.SystemLanguageISOName = SystemLanguageCfg;
+            else
+                Locale.SystemLanguageISOName = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
         }
 
         private void InitLibraries(KeyValueConfig config)
         {
-            if (_engine.DirectiveResolver != null)
+            if (_librariesInitialized)
                 return;
 
             if(config != null)
@@ -133,47 +151,25 @@ namespace ScriptEngine.HostedScript
             _env.InjectObject(obj, asDynamicScope);
         }
 
-        public ICodeSourceFactory Loader
-        {
-            get
-            {
-                return _engine.Loader;
-            }
-        }
+        public ICodeSourceFactory Loader => _engine.Loader;
 
         public IDebugController DebugController
         {
-            get { return _engine.DebugController; }
-            set { _engine.DebugController = value; }
-        }
-
-        private void InitializeDirectiveResolver()
-        {
-            var ignoreDirectiveResolver = new DirectiveIgnorer();
-
-            ignoreDirectiveResolver.Add("Region", "Область");
-            ignoreDirectiveResolver.Add("EndRegion", "КонецОбласти");
-
-            var resolversCollection = new DirectiveMultiResolver();
-            resolversCollection.Add(ignoreDirectiveResolver);
-
-            if (_engine.DirectiveResolver != null)
-                resolversCollection.Add(_engine.DirectiveResolver);
-
-            _engine.DirectiveResolver = resolversCollection;
+            get => _engine.DebugController;
+            set => _engine.DebugController = value;
         }
 
         public CompilerService GetCompilerService()
         {
             InitLibraries(GetWorkingConfig());
-            InitializeDirectiveResolver();
 
             var compilerSvc = _engine.GetCompilerService();
             compilerSvc.DefineVariable("ЭтотОбъект", "ThisObject", SymbolType.ContextProperty);
+            UserScriptContextInstance.GetOwnMethodsDefinition().ForEach(x => compilerSvc.DefineMethod(x));
             return compilerSvc;
         }
 
-        public IEnumerable<UserAddedScript> GetUserAddedScripts()
+        public IEnumerable<ExternalLibraryDef> GetExternalLibraries()
         {
             return _env.GetUserAddedScripts();
         }
@@ -194,27 +190,28 @@ namespace ScriptEngine.HostedScript
 
         public Process CreateProcess(IHostApplication host, ICodeSource src)
         {
-            return CreateProcess(host, src, GetCompilerService());
-        }
-
-        public Process CreateProcess(IHostApplication host, ICodeSource src, CompilerService compilerSvc)
-        {
-            SetGlobalEnvironment(host, src);
             Initialize();
+            SetGlobalEnvironment(host, src);
             if (_engine.DebugController != null)
             {
                 _engine.DebugController.Init();
                 _engine.DebugController.AttachToThread(_engine.Machine);
                 _engine.DebugController.Wait();
             }
+
+            var compilerSvc = GetCompilerService();
+            DefineConstants(compilerSvc);
             var module = _engine.LoadModuleImage(compilerSvc.Compile(src));
             return InitProcess(host, module);
         }
 
-        [Obsolete]
-        public Process CreateProcess(IHostApplication host, ScriptModuleHandle moduleHandle, ICodeSource src)
+        private void DefineConstants(CompilerService compilerSvc)
         {
-            return CreateProcess(host, moduleHandle.Module, src);
+            var definitions = GetWorkingConfig()["preprocessor.define"]?.Split(',') ?? new string[0];
+            foreach (var val in definitions)
+            {
+                compilerSvc.DefinePreprocessorValue(val);
+            }
         }
 
         public Process CreateProcess(IHostApplication host, ModuleImage moduleImage, ICodeSource src)
