@@ -1,4 +1,4 @@
-﻿/*----------------------------------------------------------
+/*----------------------------------------------------------
 This Source Code Form is subject to the terms of the 
 Mozilla Public License, v.2.0. If a copy of the MPL 
 was not distributed with this file, You can obtain one 
@@ -22,6 +22,12 @@ namespace ScriptEngine.HostedScript.Library.Net
     public class TCPClient : AutoContext<TCPClient>, IDisposable
     {
         private readonly TcpClient _client;
+
+        private string status = "Готов";
+        private const int BUFFERSIZE = 1024;
+        private byte[] m_Buffer;
+        private MemoryStream data = new MemoryStream();
+
 
         public TCPClient(TcpClient client)
         {
@@ -91,6 +97,67 @@ namespace ScriptEngine.HostedScript.Library.Net
         }
 
         /// <summary>
+        /// Читает сырые байты из сокета асинхронно.
+        /// </summary>
+        [ContextMethod("ПрочитатьДвоичныеДанныеАсинхронно", "ReadBinaryDataAsync")]
+        public void ReadBinaryDataAsync()
+        {
+            var stream = _client.GetStream();
+            data = new MemoryStream();
+            m_Buffer = new byte[BUFFERSIZE];
+            status = "Занят";
+            try
+            {
+                stream.BeginRead(m_Buffer, 0, m_Buffer.Length, new AsyncCallback(OnDataReceive), null);
+            }
+            catch
+            {
+                status = "Ошибка";
+            }
+
+        }
+
+        private void OnDataReceive(IAsyncResult iar)
+        {
+            try
+            {
+                var stream = _client.GetStream();
+                int ret = stream.EndRead(iar);
+                if (ret > 0)
+                {
+                    data.Write(m_Buffer, 0, ret);
+                }
+                if (stream.DataAvailable)
+                {
+                    m_Buffer = new byte[BUFFERSIZE];
+                    stream.BeginRead(m_Buffer, 0, m_Buffer.Length, new AsyncCallback(OnDataReceive), null);
+                }
+                else
+                {
+                    status = "Успех";
+                }
+            }
+            catch
+            {
+                status = "Ошибка";
+            }
+
+        }
+
+        /// <summary>
+        /// Возвращает полученные сырые байты из сокета.
+        /// </summary>
+        /// <returns>ДвоичныеДанные</returns>
+        [ContextMethod("ПолучитьДвоичныеДанные", "GetBinaryData")]
+        public BinaryDataContext GetBinaryData()
+        {
+            var a = data.ToArray();
+            data = new MemoryStream();
+            return new BinaryDataContext(a);
+        }
+
+
+        /// <summary>
         /// Отправка строки на удаленный хост
         /// </summary>
         /// <param name="data">Строка. Данные для отправки</param>
@@ -114,7 +181,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         /// </summary>
         /// <param name="data">ДвоичныеДанные которые нужно отправить.</param>
         [ContextMethod("ОтправитьДвоичныеДанные", "SendBinaryData")]
-        public void SendString(BinaryDataContext data)
+        public void SendBinaryData(BinaryDataContext data)
         {
             if (data.Buffer.Length == 0)
                 return;
@@ -123,6 +190,54 @@ namespace ScriptEngine.HostedScript.Library.Net
             stream.Write(data.Buffer, 0, data.Buffer.Length);
             stream.Flush();
 
+        }
+
+        //// завершение асинхронной отправки
+        private void OnWriteComplete(IAsyncResult ar)
+        {
+            try
+            {
+                var stream = _client.GetStream();
+                stream.EndWrite(ar);
+                status = "Успех";
+            }
+            catch
+            {
+                status = "Ошибка";
+            }
+        }
+
+        /// <summary>
+        /// Отправка сырых двоичных данных на удаленный хост асинхронно.
+        /// </summary>
+        /// <param name="data">ДвоичныеДанные которые нужно отправить.</param>
+        [ContextMethod("ОтправитьДвоичныеДанныеАсинхронно", "SendBinaryDataAsync")]
+        public void SendBinaryDataAsync(BinaryDataContext data)
+        {
+            if (data.Buffer.Length == 0)
+                return;
+
+            try
+            {
+                var stream = _client.GetStream();
+                status = "Занят";
+                stream.BeginWrite(data.Buffer, 0, data.Buffer.Length, new AsyncCallback(this.OnWriteComplete), stream);
+                //stream.Flush();
+            }
+            catch
+            {
+                status = "Ошибка";
+            }
+
+        }
+
+        /// <summary>
+        /// Состояние выполнения асинхронной операции.
+        /// </summary>
+        [ContextProperty("Статус", "Status")]
+        public string Status
+        {
+            get {return status;}
         }
 
         /// <summary>
