@@ -69,7 +69,9 @@ namespace ScriptEngine.HostedScript.Library.Net
                     if (_listener.Pending())
                     {
                         var client = _listener.AcceptTcpClient();
-                        _Conn.Enqueue(new TCPClient(client));
+                        var _client = new TCPClient(client);
+                        _client.ReadBinaryDataAsync();
+                        _Conn.Enqueue(_client);
                     }
                 }
             }
