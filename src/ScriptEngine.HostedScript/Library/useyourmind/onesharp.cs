@@ -18,6 +18,8 @@ namespace ScriptEngine.HostedScript
         public GlobalBinaryData _glbin;
 
         public Перем Неопределено;
+        public bool Истина = true;
+        public bool Ложь = false;
 
 
         public class КлючИЗначение
@@ -73,6 +75,8 @@ namespace ScriptEngine.HostedScript
                 return new БуферДвоичныхДанных(val);
             case "TCPСоединение":
                 return new TCPСоединение(val);
+            case "TCPСервер":
+                return new TCPСервер(val);
             default:
                 return new Перем(val);
             }
@@ -718,6 +722,84 @@ namespace ScriptEngine.HostedScript
 
 
 
+        public class TCPСервер : Перем
+        {
+            TCPServer _val;
+
+            public TCPServer Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public TCPСервер(IValue val)
+            {
+                _vartype = "TCPСервер";
+                _val = val as TCPServer;
+                _Value = val;
+            }
+
+            public void Запустить()
+            {
+                _val.Start();
+            }
+            public void ЗапуститьАсинхронно()
+            {
+                _val.StartAsync();
+            }
+            public TCPСоединение ОжидатьСоединения(int timeout = 0)
+            {
+                return new TCPСоединение(_val.WaitForConnection(timeout));
+            }
+
+            public bool ПриниматьЗаголовки
+            {
+                get { return _val.ReadHeaders; }
+                set { _val.ReadHeaders = value; }
+            }
+
+            public void Остановить()
+            {
+                _val.Stop();
+            }
+
+
+            public override bool Equals(object other)
+            {
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return 0;
+            }
+
+            new public bool Equals(IValue other)
+            {
+                return _val.Equals(other);
+            }
+
+            public static bool operator ==(TCPСервер lhs, Перем rhs)
+            {
+                return lhs.Equals(rhs._Value);
+            }
+
+            public static bool operator !=(TCPСервер lhs, Перем rhs)
+            {
+                return !lhs.Equals(rhs._Value);
+            }
+
+        }
+
+        public TCPСервер Новый_TCPСервер(Перем Порт)
+        {
+            return new TCPСервер(TCPServer.ConstructByPort(Порт._Value));
+        }
+
+
+
         public void Сообщить(Перем message, MessageStatusEnum status = MessageStatusEnum.Ordinary)
         {
             _syscon.ApplicationHost.Echo(message.Value.AsString(), status);
@@ -832,6 +914,10 @@ namespace ScriptEngine.HostedScript
             return result;
         }
 
+        public void Приостановить(int delay)
+        {
+            System.Threading.Thread.Sleep(delay);
+        }
 
         public decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
         {

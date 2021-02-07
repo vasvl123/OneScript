@@ -216,6 +216,49 @@ namespace ScriptEngine.HostedScript.Library
             return Соединение; // ПередатьДанные()
         }
 
+        public IValue Тест(IValue arg)
+        {
+            var струк = Новый(arg) as Структура;
+
+            var k = Новый_Структура();
+
+            var ууу = ИмяЗначение("ааа", "ппп");
+
+            var k1 = Строка(k.Количество());
+
+            Сообщить(k1);
+            //Сообщить(ууу.Получить("Имя"));
+
+            //                var ттип1 = Тип("Структура");
+            //                var ттип2 = ТипЗнч(k._str);
+            //
+            //                Сообщить(ТипЗнч(ттип1));
+
+            //Console.WriteLine(123);
+
+            var b = СтруктуруВДвоичныеДанные(Новый(arg));
+
+            //Сообщить(b);
+
+            //foreach (var Элемент in ууу)
+            //{
+            //    Сообщить(Элемент.Ключ);
+            //}
+
+            var c = ДвоичныеДанныеВСтруктуру(b);
+
+            //var струк1 = Новый(c) as Структура;
+
+            if (струк == c)
+            {
+                Сообщить("ага!");
+            }
+
+            return c.Value;
+
+        }
+
+
     }
 
 
@@ -224,71 +267,34 @@ namespace ScriptEngine.HostedScript.Library
     {
 
         private functions func = new functions();
-        private showdata sd = new showdata();
-
-        private class showdata : functions
-        {
-
-            public IValue Start(IValue arg)
-            {
-                var струк = Новый(arg) as Структура;
-                
-                var k = Новый_Структура();
-
-                var ууу = ИмяЗначение("ааа", "ппп");
-
-                var k1 = Строка(k.Количество());
-
-                Сообщить(k1);
-                //Сообщить(ууу.Получить("Имя"));
-
-                //                var ттип1 = Тип("Структура");
-                //                var ттип2 = ТипЗнч(k._str);
-                //
-                //                Сообщить(ТипЗнч(ттип1));
-
-                //Console.WriteLine(123);
-
-                var b = СтруктуруВДвоичныеДанные(Новый(arg));
-
-                //Сообщить(b);
-
-                //foreach (var Элемент in ууу)
-                //{
-                //    Сообщить(Элемент.Ключ);
-                //}
-
-                var c = ДвоичныеДанныеВСтруктуру(b);
-
-                //var струк1 = Новый(c) as Структура;
-
-                if (струк == c)
-                {
-                    Сообщить("ага!");
-                }
-
-                return c.Value;
-
-            }
-
-        }
-
+   
         public void initobj(SystemGlobalContext syscon)
         {
             func._syscon = syscon;
-            sd._syscon = syscon;
         }
 
-        [ContextMethod("СтруктуруВДвоичныеДанные", "Start1")]
-        public IValue Start1(IValue arg = null)
+        [ContextMethod("СтруктуруВДвоичныеДанные", "СтруктуруВДвоичныеДанные")]
+        public IValue СтруктуруВДвоичныеДанные(IValue arg = null)
         {
-            return sd.НЗнач(sd.СтруктуруВДвоичныеДанные(sd.НПерем(arg)));
+            return func.НЗнач(func.СтруктуруВДвоичныеДанные(func.НПерем(arg)));
         }
 
-        [ContextMethod("Start", "Start")]
-        public IValue Start(IValue arg = null)
+        [ContextMethod("ДвоичныеДанныеВСтруктуру", "ДвоичныеДанныеВСтруктуру")]
+        public IValue ДвоичныеДанныеВСтруктуру(IValue arg = null)
         {
-            return sd.Start(arg);
+            return func.НЗнач(func.ДвоичныеДанныеВСтруктуру(func.НПерем(arg)));
+        }
+
+        [ContextMethod("ПередатьДанные", "ПередатьДанные")]
+        public IValue ПередатьДанные(IValue arg1, IValue arg2, IValue arg3)
+        {
+            return func.НЗнач(func.ПередатьДанные(func.НПерем(arg1), func.НПерем(arg2), func.НПерем(arg3)));
+        }
+
+        [ContextMethod("Тест", "Тест")]
+        public IValue Тест(IValue arg = null)
+        {
+            return func.Тест(arg);
         }
 
         [ContextMethod("ИмяЗначение", "ИмяЗначение")]
