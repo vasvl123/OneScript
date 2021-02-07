@@ -24,9 +24,11 @@ namespace ScriptEngine.HostedScript.Library.Net
         private readonly TcpClient _client;
 
         private string status = "Готов";
-        private const int BUFFERSIZE = 1024;
+        private const int BUFFERSIZE = 4096;
         private byte[] m_Buffer;
         private MemoryStream data = new MemoryStream();
+        private MemoryStream headers = new MemoryStream();
+        private bool _readheaders = false;
 
 
         public TCPClient(TcpClient client)
@@ -125,16 +127,32 @@ namespace ScriptEngine.HostedScript.Library.Net
                 int ret = stream.EndRead(iar);
                 if (ret > 0)
                 {
-                    data.Write(m_Buffer, 0, ret);
-                }
-                if (stream.DataAvailable)
-                {
-                    m_Buffer = new byte[BUFFERSIZE];
-                    stream.BeginRead(m_Buffer, 0, m_Buffer.Length, new AsyncCallback(OnDataReceive), null);
-                }
-                else
-                {
-                    status = "Успех";
+                    int n = 0;
+                    if (_readheaders)
+                    {
+                        for (n = 0;  n < ret; n++) {
+                            if (m_Buffer[n] == 10)
+                                if (n > 3)
+                                    if (m_Buffer[n - 1] == 13 && m_Buffer[n - 2] == 10 && m_Buffer[n - 3] == 13)
+                                    {
+                                        headers.Write(m_Buffer, 0, n);
+                                        _readheaders = false;
+                                        if (n < ret) n++;
+                                        break;
+                                    }
+                        }
+                        status = "Заголовки";
+                        System.Threading.Thread.Sleep(3);
+                    }
+                    data.Write(m_Buffer, n, ret - n);
+                    if (stream.DataAvailable)
+                    {
+                        status = "Занят";
+                        m_Buffer = new byte[BUFFERSIZE];
+                        stream.BeginRead(m_Buffer, 0, m_Buffer.Length, new AsyncCallback(OnDataReceive), null);
+                    }
+                    else
+                        status = "Данные";
                 }
             }
             catch
@@ -154,6 +172,49 @@ namespace ScriptEngine.HostedScript.Library.Net
             var a = data.ToArray();
             data = new MemoryStream();
             return new BinaryDataContext(a);
+        }
+
+        /// <summary>
+        /// Прочитать данные из сокета в виде строки.
+        /// </summary>
+        /// <param name="encoding">КодировкаТекста или Строка. Указывает в какой кодировке интерпретировать входящий поток байт.
+        /// Значение по умолчанию: utf-8</param>
+        /// <returns>Строка. Данные прочитанные из сокета</returns>
+        [ContextMethod("ПолучитьСтроку", "GetString")]
+        public string GetString(string encoding = null)
+        {
+            var enc = GetEncodingByName(encoding);
+            if (data.Length == 0)
+                return "";
+
+            data.Seek(0, SeekOrigin.Begin);
+
+            using (var reader = new StreamReader(data, enc))
+            {              
+                var str = reader.ReadToEnd();
+                data = new MemoryStream();
+                return str;
+            }
+
+        }
+
+
+        [ContextMethod("ПолучитьЗаголовки", "GetHeaders")]
+        public string GetHeaders(string encoding = null)
+        {
+            var enc = GetEncodingByName(encoding);
+            if (headers.Length == 0)
+                return "";
+
+            headers.Seek(0, SeekOrigin.Begin);
+
+            using (var reader = new StreamReader(headers, enc))
+            {
+                var str = reader.ReadToEnd();
+                headers = new MemoryStream();
+                return str;
+            }
+
         }
 
 
@@ -221,7 +282,7 @@ namespace ScriptEngine.HostedScript.Library.Net
             {
                 var stream = _client.GetStream();
                 status = "Занят";
-                stream.BeginWrite(data.Buffer, 0, data.Buffer.Length, new AsyncCallback(this.OnWriteComplete), stream);
+                stream.BeginWrite(data.Buffer, 0, data.Buffer.Length, new AsyncCallback(this.OnWriteComplete), null);
                 //stream.Flush();
             }
             catch
@@ -276,6 +337,15 @@ namespace ScriptEngine.HostedScript.Library.Net
             get { return _client.GetStream().ReadTimeout; }
             set { _client.GetStream().ReadTimeout = value; }
         }
+
+
+        [ContextProperty("ПриниматьЗаголовоки", "ReadHeaders")]
+        public bool ReadHeaders
+        {
+            get { return _readheaders; }
+            set { _readheaders = value; }
+        }
+
 
         private static Encoding GetEncodingByName(string encoding)
         {

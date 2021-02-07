@@ -24,6 +24,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         private Thread th;
         private string _Active = "none";
         private readonly Queue<TCPClient> _Conn = new Queue<TCPClient>();
+        private bool _readheaders = false;
 
         public TCPServer(int port)
         {
@@ -45,6 +46,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         [ContextMethod("ЗапуститьАсинхронно", "StartAsync")]
         public void StartAsync()
         {
+            _listener.Start();
             th = new Thread(new ThreadStart(StartList));
             th.Start();
             while (_Active != "true")
@@ -55,27 +57,21 @@ namespace ScriptEngine.HostedScript.Library.Net
 
         private void StartList()
         {
-            _listener.Start();
             _Active = "true";
             while (_Active == "true")
             {
-                while (_Active == "true" && !_listener.Pending())
+                try
                 {
-                    Thread.Sleep(5);
+                    var client = _listener.AcceptTcpClient();
+                    var _client = new TCPClient(client);
+                    _client.ReadHeaders = _readheaders;
+                    _client.ReadBinaryDataAsync();
+                    _Conn.Enqueue(_client);
                 }
-
-                if (_Active == "true")
+                catch
                 {
-                    if (_listener.Pending())
-                    {
-                        var client = _listener.AcceptTcpClient();
-                        var _client = new TCPClient(client);
-                        _client.ReadBinaryDataAsync();
-                        _Conn.Enqueue(_client);
-                    }
                 }
             }
-            _listener.Stop();
             _Active = "none";
         }
 
@@ -85,19 +81,8 @@ namespace ScriptEngine.HostedScript.Library.Net
         [ContextMethod("Остановить", "Stop")]
         public void Stop()
         {
-            if (_Active == "none")
-            {
-                _listener.Stop();
-            }
-
-            if (_Active == "true")
-            {
-                _Active = "false";
-                while (_Active != "none")
-                {
-                    Thread.Sleep(5);
-                }
-            }
+            _Active = "false";
+            _listener.Stop();
         }
 
         /// <summary>
@@ -125,7 +110,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         [ContextMethod("ПолучитьСоединение", "GetConnection")]
         public TCPClient GetConnection(int timeout = 0)
         {
-            while (0 < timeout && _Conn.Count == 0)
+            while (5 < timeout && _Conn.Count == 0)
             {
                 Thread.Sleep(5);
                 timeout -= 5;
@@ -139,6 +124,12 @@ namespace ScriptEngine.HostedScript.Library.Net
             return null;
         }
 
+        [ContextProperty("ПриниматьЗаголовки", "ReadHeaders")]
+        public bool ReadHeaders
+        {
+            get { return _readheaders; }
+            set { _readheaders = value; }
+        }
 
         /// <summary>
         /// Создает новый сокет с привязкой к порту.

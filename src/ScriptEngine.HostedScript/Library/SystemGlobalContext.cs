@@ -88,6 +88,12 @@ namespace ScriptEngine.HostedScript.Library
             ApplicationHost.Echo(message ?? "", status);
         }
 
+        [ContextMethod("Использовать", "initobj")]
+        public void initobj(ScriptEngine.HostedScript.Library.useyourmind obj)
+        {
+            obj.initobj(this);
+        }
+
         /// <summary>
         /// Подключает сторонний файл сценария к текущей системе типов.
         /// Подключенный сценарий выступает, как самостоятельный класс, создаваемый оператором Новый
