@@ -92,7 +92,7 @@
       <Name>OneScript.DebugProtocol</Name>
     </ProjectReference>
     <ProjectReference Include="..\OneScript.Language\OneScript.Language.csproj">
-      <Project>{0b30df8b-bd15-4c63-9cc4-1e123566b5b3}</Project>
+      <Project>{4442D7AD-BE23-4BE0-A74F-544E61D3C69A}</Project>
       <Name>OneScript.Language</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScriptEngine.HostedScript\ScriptEngine.HostedScript.csproj">
@@ -104,7 +104,7 @@
       <Name>ScriptEngine</Name>
     </ProjectReference>
     <ProjectReference Include="..\OneScript.DebugServices\OneScript.DebugServices.csproj">
-      <Project>{600ACA55-4077-4D29-8C51-DBA93EB34609}</Project>
+      <Project>{F062D1D9-D307-492A-A56B-FF3C55F8F6C0}</Project>
       <Name>ScriptEngine</Name>
     </ProjectReference>
   </ItemGroup>

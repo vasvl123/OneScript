@@ -10,6 +10,7 @@
     <ItemGroup>
       <ProjectReference Include="..\OneScript.DebugProtocol\OneScript.DebugProtocol.csproj" />
       <ProjectReference Include="..\ScriptEngine\ScriptEngine.csproj" />
+      <ProjectReference Include="..\OneScript.Language\OneScript.Language.csproj" />
     </ItemGroup>
 
 </Project>

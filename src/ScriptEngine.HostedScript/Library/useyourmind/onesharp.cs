@@ -14,13 +14,17 @@ namespace ScriptEngine.HostedScript
     {
 
         public SystemGlobalContext _syscon;
-
         public GlobalBinaryData _glbin;
+        public FileOperations _fileop;
+
+        [AttributeUsage(AttributeTargets.Parameter)]
+        public class ByRefAttribute : Attribute
+        {
+        }
 
         public Перем Неопределено;
         public bool Истина = true;
         public bool Ложь = false;
-
 
         public class КлючИЗначение
         {
@@ -311,12 +315,26 @@ namespace ScriptEngine.HostedScript
             return new Структура(strProperties);
         }
 
-        public Структура Новый_Структура(string strProperties, params IValue[] values)
+        public Структура Новый_Структура(string strProperties, object arg)
         {
-            return new Структура(strProperties, values);
+            return Новый_Структура(strProperties, new object[] {arg});
         }
 
-
+        public Структура Новый_Структура(string strProperties, params object[] values)
+        {
+            var arr = new List<IValue>();
+            foreach (object p in values) {
+                if (p is int) 
+                    arr.Add(ValueFactory.Create((int)p));
+                else if (p is string)
+                    arr.Add(ValueFactory.Create((string)p));
+                else if (p is bool)
+                    arr.Add(ValueFactory.Create((bool)p));
+                else if (p is Перем)
+                    arr.Add(((Перем)p)._Value);
+                }
+            return new Структура(strProperties, arr.ToArray());
+        }
 
         public class Соответствие : Список
         {
@@ -401,7 +419,7 @@ namespace ScriptEngine.HostedScript
 
         }
 
-        public Перем Новый_Соответствие()
+        public Соответствие Новый_Соответствие()
         {
             return new Соответствие();
         }
@@ -442,6 +460,11 @@ namespace ScriptEngine.HostedScript
             public Перем Получить(int index)
             {
                 return Новый(_val.Get(index));
+            }
+
+            public void Удалить(int index)
+            {
+                _val.Remove(index);
             }
 
             public void Вставить(int pos, Перем val)
@@ -552,7 +575,7 @@ namespace ScriptEngine.HostedScript
 
         }
 
-        public Перем Новый_ДвоичныеДанные(string arg1)
+        public ДвоичныеДанные Новый_ДвоичныеДанные(string arg1)
         {
             return new ДвоичныеДанные(new BinaryDataContext(arg1));
         }
@@ -800,6 +823,20 @@ namespace ScriptEngine.HostedScript
 
 
 
+
+        public string ТекущийКаталог()
+        {
+            return _fileop.CurrentDirectory();
+        }
+
+        public void ЗапуститьПриложение(string cmdLine, string currentDir = null, bool wait = false, [ByRef] Перем retCode = null)
+        {
+            if (retCode == null)
+                _syscon.RunApp(cmdLine, currentDir, wait); 
+            else
+                _syscon.RunApp(cmdLine, currentDir, wait, retCode._Value as IVariable);
+        }
+
         public void Сообщить(Перем message, MessageStatusEnum status = MessageStatusEnum.Ordinary)
         {
             _syscon.ApplicationHost.Echo(message.Value.AsString(), status);
@@ -919,6 +956,8 @@ namespace ScriptEngine.HostedScript
             System.Threading.Thread.Sleep(delay);
         }
 
+
+
         public decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
         {
             return (decimal)DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
@@ -965,6 +1004,7 @@ namespace ScriptEngine.HostedScript
         public onesharp ()
         {
             _glbin = new GlobalBinaryData();
+            _fileop = new FileOperations();
         }
     }
 }
