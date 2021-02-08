@@ -26,6 +26,11 @@ namespace ScriptEngine.HostedScript
         public bool Истина = true;
         public bool Ложь = false;
 
+        public string[] АргументыКоманднойСтроки
+        {
+            get { return _syscon.ApplicationHost.GetCommandLineArguments(); }
+        }
+
         public class КлючИЗначение
         {
             private readonly Перем _key;
@@ -257,6 +262,19 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
+            public bool Свойство(string name, [ByRef] Перем value = null)
+            {
+                if (value == null)
+                    return _val.HasProperty(name);
+                else
+                {
+                    var v = value._Value as IVariable;
+                    var b = _val.HasProperty(name, v);
+                    value = Новый(v);
+                    return b;
+                }
+            }
+
             public Перем Получить(string name = null)
             {
                 return Новый(_val.GetPropValue(_val.FindProperty(name)));
@@ -380,6 +398,15 @@ namespace ScriptEngine.HostedScript
             public void Вставить(string key, string val)
             {
                 _val.Insert(ValueFactory.Create(key), ValueFactory.Create(val));
+            }
+            public void Удалить(string key)
+            {
+                _val.Delete(ValueFactory.Create(key));
+            }
+
+            public void Удалить(Перем key)
+            {
+                _val.Delete(key._Value);
             }
 
             public override bool Equals(object other)
@@ -695,6 +722,11 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
+            public string Статус
+            {
+                get { return _val.Status; }
+            }
+
             public int ТаймаутОтправки
             {
                 get { return _val.WriteTimeout; }
@@ -704,6 +736,11 @@ namespace ScriptEngine.HostedScript
             public void ОтправитьДвоичныеДанныеАсинхронно(ДвоичныеДанные data)
             {
                 _val.SendBinaryDataAsync(data.Impl);
+            }
+
+            public ДвоичныеДанные ПолучитьДвоичныеДанные()
+            {
+                return new ДвоичныеДанные(_val.GetBinaryData());
             }
 
             public void Закрыть()
@@ -777,6 +814,11 @@ namespace ScriptEngine.HostedScript
                 return new TCPСоединение(_val.WaitForConnection(timeout));
             }
 
+            public TCPСоединение ПолучитьСоединение(int timeout = 0)
+            {
+                return new TCPСоединение(_val.GetConnection(timeout));
+            }
+
             public bool ПриниматьЗаголовки
             {
                 get { return _val.ReadHeaders; }
@@ -821,6 +863,29 @@ namespace ScriptEngine.HostedScript
             return new TCPСервер(TCPServer.ConstructByPort(Порт._Value));
         }
 
+        public class СистемнаяИнформация
+        {
+            SystemEnvironmentContext _sysenv;
+
+            public СистемнаяИнформация()
+            {
+                _sysenv = new SystemEnvironmentContext();
+            }
+
+             public string ВерсияОС
+            {
+                get
+                {
+                    return _sysenv.OSVersion;
+                }
+            }
+
+        }
+
+        public СистемнаяИнформация Новый_СистемнаяИнформация()
+        {
+            return new СистемнаяИнформация();
+        }
 
 
 
@@ -868,6 +933,11 @@ namespace ScriptEngine.HostedScript
         }
 
         public Перем Число(int arg)
+        {
+            return new Перем(ValueFactory.Create(arg));
+        }
+
+        public Перем Число(decimal arg)
         {
             return new Перем(ValueFactory.Create(arg));
         }
@@ -997,8 +1067,6 @@ namespace ScriptEngine.HostedScript
         {
             return _glbin.GetStringFromBinaryData(arg.Impl);
         }
-
-         
 
 
         public onesharp ()
