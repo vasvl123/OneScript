@@ -34,28 +34,28 @@ namespace ScriptEngine.HostedScript
 
         public class КлючИЗначение
         {
-            private readonly Перем _key;
-            private readonly Перем _value;
+            private readonly IValue _key;
+            private readonly IValue _value;
 
-            public КлючИЗначение(Перем key, Перем value)
+            public КлючИЗначение(IValue key, IValue value)
             {
                 _key = key;
                 _value = value;
             }
 
-            public Перем Ключ
+            public object Ключ
             {
                 get
                 {
-                    return _key;
+                    return Вернуть(_key);
                 }
             }
 
-            public Перем Значение
+            public object Значение
             {
                 get
                 {
-                    return _value;
+                    return Вернуть(_value);
                 }
             }
 
@@ -68,9 +68,19 @@ namespace ScriptEngine.HostedScript
                 switch (v._vartype)
                 {
                     case "Число":
-                        return v._Value.AsNumber();
+                        var n = v._Value.AsNumber();
+                        try
+                        {
+                            return Decimal.ToInt32(n);
+                        }
+                        catch (OverflowException e)
+                        {
+                            return n;
+                        }
                     case "Строка":
                         return v._Value.AsString();
+                    case "Булево":
+                        return v._Value.AsBoolean();
                     default:
                         return arg;
                 }
@@ -82,15 +92,41 @@ namespace ScriptEngine.HostedScript
                 switch (v.SystemType.ToString())
                 {
                     case "Число":
-                        return v.AsNumber();
+                        var n = v.AsNumber();
+                        try
+                        {
+                            return Decimal.ToInt32(n);
+                        }
+                        catch (OverflowException e)
+                        {
+                            return n;
+                        }
                     case "Строка":
                         return v.AsString();
+                    case "Булево":
+                        return v.AsBoolean();
                     default:
                         return Новый(v);
                 }
             }
 
             return arg;
+        }
+
+        public static IValue Знач(object p)
+        {
+            if (p is int)
+                return ValueFactory.Create((int)p);
+            else if (p is decimal)
+                return ValueFactory.Create((decimal)p);
+            else if (p is string)
+                return ValueFactory.Create((string)p);
+            else if (p is bool)
+                return ValueFactory.Create((bool)p);
+            else if (p is Перем)
+                return ((Перем)p)._Value;
+
+            return p as IValue;
         }
 
         public static Перем Новый(string val)
@@ -161,31 +197,7 @@ namespace ScriptEngine.HostedScript
             {
                 return _Value.AsString();
             }
-
-            public string Строка
-            {
-                get
-                {
-                    return _Value.AsString();
-                }
-            }
-
-            public decimal Число
-            {
-                get
-                {
-                    return _Value.AsNumber();
-                }
-            }
-
-            public bool Булево 
-            {
-                get
-                {
-                    return _Value.AsBoolean();
-                }
-            }
-
+             
             #region IComparable<IValue> Members
 
             public int CompareTo(IValue other)
@@ -216,7 +228,7 @@ namespace ScriptEngine.HostedScript
 
             public bool Equals(Перем other)
             {
-                if (other is null) return false;
+                if (other is null) return (_Value is null);
                 return _Value.Equals(other._Value);
             }
 
@@ -289,7 +301,7 @@ namespace ScriptEngine.HostedScript
                 _Value = _val;
             }
 
-            // получение свойства
+            // получить свойство
             public override bool TryGetMember(GetMemberBinder binder, out object result)
             {
                 result = null;
@@ -302,58 +314,40 @@ namespace ScriptEngine.HostedScript
                 return false;
             }
 
+            // установить свойство
+            public override bool TrySetMember(SetMemberBinder binder, object value)
+            {
+                _val.Insert(binder.Name, Знач(value));
+                return true;
+            }
+
             public int Количество()
             {
                 return _val.Count();
             }
 
-            public bool Свойство(string name, [ByRef] Перем value = null)
+            public bool Свойство(string name, [ByRef] object value = null)
             {
                 if (value == null)
                     return _val.HasProperty(name);
                 else
                 {
-                    var v = value._Value as IVariable;
+                    var v = Variable.Create(null, "");
                     var b = _val.HasProperty(name, v);
-                    value = Новый(v);
+                    value = Вернуть(v.Value);
                     return b;
                 }
             }
 
-            public Перем Получить(string name = null)
+            public object Получить(string name = null)
             {
-                return Новый(_val.GetPropValue(_val.FindProperty(name)));
+                return Вернуть(_val.GetPropValue(_val.FindProperty(name)));
             }
 
-            public void Вставить(string name, Перем val = null)
+            public void Вставить(string name, object val = null)
             {
                 
-                _val.Insert(name, val.Value);
-            }
-
-            public void Вставить(string name, string val)
-            {
-                _val.Insert(name, ValueFactory.Create(val));
-            }
-
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-             public static bool operator ==(Структура lhs, Структура rhs)
-            {
-                return lhs.Equals(rhs);
-            }
-
-            public static bool operator !=(Структура lhs, Структура rhs)
-            {
-                return !lhs.Equals(rhs);
+                _val.Insert(name, Знач(val));
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
@@ -361,7 +355,7 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        Новый(item.Key), Новый(item.Value));
+                        item.Key, item.Value);
                 }
 
             }
@@ -369,29 +363,22 @@ namespace ScriptEngine.HostedScript
         }
 
 
-        public Структура Новый_Структура()
+        public static Структура Новый_Структура()
         {
             return new Структура();
         }
 
-        public Структура Новый_Структура(string strProperties)
+        public static Структура Новый_Структура(string strProperties)
         {
             return new Структура(strProperties);
         }
 
-        public Структура Новый_Структура(string strProperties, params object[] values)
+        public static Структура Новый_Структура(string strProperties, params object[] values)
         {
             var arr = new List<IValue>();
             foreach (object p in values) {
-                if (p is int) 
-                    arr.Add(ValueFactory.Create((int)p));
-                else if (p is string)
-                    arr.Add(ValueFactory.Create((string)p));
-                else if (p is bool)
-                    arr.Add(ValueFactory.Create((bool)p));
-                else if (p is Перем)
-                    arr.Add(((Перем)p)._Value);
-                }
+                    arr.Add(Знач(p));
+            }
             return new Структура(strProperties, arr.ToArray());
         }
 
@@ -427,53 +414,36 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
-            public Перем Получить(string name = null)
+            public object Получить(string name = null)
             {
-                return Новый(_val.GetPropValue(_val.FindProperty(name)));
+                try
+                { 
+                    return Вернуть(_val.GetPropValue(_val.FindProperty(name))); 
+                }
+                catch 
+                {
+                    return null;
+                }
+                
             }
 
-            public void Вставить(Перем key, Перем val = null)
+            public void Вставить(object key, object val = null)
             {
-                _val.Insert(key.Value, val.Value);
+                _val.Insert(Знач(key), Знач(val));
             }
 
             public void Вставить(string key, string val)
             {
-                _val.Insert(ValueFactory.Create(key), ValueFactory.Create(val));
+                _val.Insert(Знач(key), Знач(val));
             }
             public void Удалить(string key)
             {
-                _val.Delete(ValueFactory.Create(key));
+                _val.Delete(Знач(key));
             }
 
-            public void Удалить(Перем key)
+            public void Удалить(object key)
             {
-                _val.Delete(key._Value);
-            }
-
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(Соответствие lhs, Соответствие rhs)
-            {
-                 return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(Соответствие lhs, Соответствие rhs)
-            {
-                return !lhs.Equals(rhs._Value);
+                _val.Delete(Знач(key));
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
@@ -481,14 +451,14 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        Новый(item.Key), Новый(item.Value));
+                        item.Key, item.Value);
                 }
 
             }
 
         }
 
-        public Соответствие Новый_Соответствие()
+        public static Соответствие Новый_Соответствие()
         {
             return new Соответствие();
         }
@@ -526,9 +496,9 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
-            public Перем Получить(int index)
+            public object Получить(int index)
             {
-                return Новый(_val.Get(index));
+                return Вернуть(_val.Get(index));
             }
 
             public void Удалить(int index)
@@ -536,39 +506,14 @@ namespace ScriptEngine.HostedScript
                 _val.Remove(index);
             }
 
-            public void Вставить(int pos, Перем val)
+            public void Вставить(int pos, object val)
             {
-                _val.Insert(pos, val.Value);
+                _val.Insert(pos, Знач(val));
             }
 
-            public void Добавить(Перем val)
+            public void Добавить(object val)
             {
-                _val.Add(val.Value);
-            }
-
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(Массив lhs, Массив rhs)
-            {
-                return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(Массив lhs, Массив rhs)
-            {
-                return !lhs.Equals(rhs._Value);
+                _val.Add(Знач(val));
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
@@ -576,7 +521,7 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        null, Новый(item));
+                        null, item);
                 }
 
             }
@@ -585,7 +530,7 @@ namespace ScriptEngine.HostedScript
 
 
 
-        public Массив Новый_Массив()
+        public static Массив Новый_Массив()
         {
             return new Массив();
         }
@@ -616,35 +561,9 @@ namespace ScriptEngine.HostedScript
                 return _val.Size();
             }
 
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(ДвоичныеДанные lhs, ДвоичныеДанные rhs)
-            {
-                return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(ДвоичныеДанные lhs, ДвоичныеДанные rhs)
-            {
-                return !lhs.Equals(rhs._Value);
-            }
-
-
         }
 
-        public ДвоичныеДанные Новый_ДвоичныеДанные(string arg1)
+        public static ДвоичныеДанные Новый_ДвоичныеДанные(string arg1)
         {
             return new ДвоичныеДанные(new BinaryDataContext(arg1));
         }
@@ -710,34 +629,9 @@ namespace ScriptEngine.HostedScript
                 _val.WriteInt32(arg1, arg2._Value);
             }
 
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(БуферДвоичныхДанных lhs, БуферДвоичныхДанных rhs)
-            {
-                return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(БуферДвоичныхДанных lhs, БуферДвоичныхДанных rhs)
-            {
-                return !lhs.Equals(rhs._Value);
-            }
-
         }
 
-        public БуферДвоичныхДанных Новый_БуферДвоичныхДанных(int arg1)
+        public static БуферДвоичныхДанных Новый_БуферДвоичныхДанных(int arg1)
         {
             return new БуферДвоичныхДанных(BinaryDataBuffer.Constructor(ValueFactory.Create(arg1)));
         }
@@ -790,36 +684,11 @@ namespace ScriptEngine.HostedScript
                 _val.Close();
             }
 
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(TCPСоединение lhs, Перем rhs)
-            {
-                return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(TCPСоединение lhs, Перем rhs)
-            {
-                return !lhs.Equals(rhs._Value);
-            }
-
         }
 
-        public TCPСоединение Новый_TCPСоединение(Перем Хост, Перем Порт)
+        public static TCPСоединение Новый_TCPСоединение(string Хост, int Порт)
         {
-            return new TCPСоединение(TCPClient.Constructor(Хост.Value, Порт.Value));
+            return new TCPСоединение(TCPClient.Constructor(Знач(Хост), Знач(Порт)));
         }
 
 
@@ -872,37 +741,11 @@ namespace ScriptEngine.HostedScript
                 _val.Stop();
             }
 
-
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            new public bool Equals(IValue other)
-            {
-                return _val.Equals(other);
-            }
-
-            public static bool operator ==(TCPСервер lhs, Перем rhs)
-            {
-                return lhs.Equals(rhs._Value);
-            }
-
-            public static bool operator !=(TCPСервер lhs, Перем rhs)
-            {
-                return !lhs.Equals(rhs._Value);
-            }
-
         }
 
-        public TCPСервер Новый_TCPСервер(Перем Порт)
+        public static TCPСервер Новый_TCPСервер(int Порт)
         {
-            return new TCPСервер(TCPServer.ConstructByPort(Порт._Value));
+            return new TCPСервер(TCPServer.ConstructByPort(Знач(Порт)));
         }
 
         public class СистемнаяИнформация
@@ -924,7 +767,7 @@ namespace ScriptEngine.HostedScript
 
         }
 
-        public СистемнаяИнформация Новый_СистемнаяИнформация()
+        public static СистемнаяИнформация Новый_СистемнаяИнформация()
         {
             return new СистемнаяИнформация();
         }
@@ -959,59 +802,57 @@ namespace ScriptEngine.HostedScript
             _syscon.ApplicationHost.Echo(message.ToString(), status);
         }
 
-        public Перем Строка(string arg)
+        public static string Строка(object arg)
         {
-            return new Перем(ValueFactory.Create(arg));
+            return Знач(arg).AsString();
         }
 
-        public Перем Строка(int arg)
+        public static object Число(object arg)
         {
-            return new Перем(ValueFactory.Create(ValueFactory.Create(arg).AsString()));
+            decimal n = Знач(arg).AsNumber();
+            try
+            {
+                return Decimal.ToInt32(n);
+            }
+            catch (OverflowException e)
+            {
+                return n;
+            }
         }
 
-        public Перем Строка(Перем arg)
+        public static bool Булево(object arg)
         {
-            return new Перем(ValueFactory.Create(arg.Value.AsString()));
+            return Знач(arg).AsBoolean();
         }
 
-        public Перем Число(int arg)
+        public static string ТипЗнч(object p)
         {
-            return new Перем(ValueFactory.Create(arg));
+            if (p is int)
+                return "Число";
+            else if (p is decimal)
+                return "Число";
+            else if (p is string)
+                return "Строка";
+            else if (p is bool)
+                return "Булево";
+            else if (p is Перем)
+                return ((Перем)p)._vartype;
+
+            return "Неопределено";
         }
 
-        public Перем Число(decimal arg)
-        {
-            return new Перем(ValueFactory.Create(arg));
-        }
-
-        public Перем Число(Перем arg)
-        {
-            return new Перем(ValueFactory.Create(arg._Value.AsNumber()));
-        }
-
-        public Перем Булево(bool arg)
-        {
-            return new Перем(ValueFactory.Create(arg));
-        }
-
-        public string ТипЗнч(Перем arg)
-        {
-            return arg._vartype;
-            //return new TypeTypeValue(arg._Value.SystemType);
-        }
-
-        public string Тип(string arg)
+        public static string Тип(string arg)
         {
             return arg;
             //return new TypeTypeValue(arg);
         }
 
-        public DateTime ТекущаяДата()
+        public static DateTime ТекущаяДата()
         {
             return DateTime.Now;
         }
 
-        public string Лев(string str, int len)
+        public static string Лев(string str, int len)
         {
             if (len > str.Length)
                 len = str.Length;
@@ -1023,7 +864,7 @@ namespace ScriptEngine.HostedScript
             return str.Substring(0, len);
         }
 
-        public string Прав(string str, int len)
+        public static string Прав(string str, int len)
         {
             if (len > str.Length)
                 len = str.Length;
@@ -1036,12 +877,12 @@ namespace ScriptEngine.HostedScript
             return str.Substring(startIdx, len);
         }
 
-        public string Сред(string str, int start)
+        public static string Сред(string str, int start)
         {
             return Сред(str, start, str.Length - start + 1);
         }
 
-        public string Сред(string str, int start, int len)
+        public static string Сред(string str, int start, int len)
         {
             if (start < 1)
                 start = 1;
@@ -1063,19 +904,19 @@ namespace ScriptEngine.HostedScript
             return result;
         }
 
-        public void Приостановить(int delay)
+        public static void Приостановить(int delay)
         {
             System.Threading.Thread.Sleep(delay);
         }
 
 
 
-        public decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
+        public static decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
         {
             return (decimal)DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
         }
 
-        public decimal Цел(decimal val)
+        public static decimal Цел(decimal val)
         {
             return Math.Truncate(val);
         }
@@ -1085,9 +926,9 @@ namespace ScriptEngine.HostedScript
             return new ДвоичныеДанные(_glbin.ConcatenateBinaryData(arg.Impl));
         }
 
-        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(Перем arg)
+        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(object arg)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString(arg.Value.AsString()));
+            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString((string)Вернуть(arg)));
         }
 
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string arg)
