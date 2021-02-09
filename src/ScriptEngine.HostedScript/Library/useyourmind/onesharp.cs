@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Dynamic;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -60,6 +61,38 @@ namespace ScriptEngine.HostedScript
 
         }
 
+        public static object Вернуть(object arg) {
+            if (arg is Перем)
+            {
+                var v = ((Перем)arg);
+                switch (v._vartype)
+                {
+                    case "Число":
+                        return v._Value.AsNumber();
+                    case "Строка":
+                        return v._Value.AsString();
+                    default:
+                        return arg;
+                }
+            }
+
+            if (arg is IValue)
+            {
+                var v = (IValue)arg;
+                switch (v.SystemType.ToString())
+                {
+                    case "Число":
+                        return v.AsNumber();
+                    case "Строка":
+                        return v.AsString();
+                    default:
+                        return Новый(v);
+                }
+            }
+
+            return arg;
+        }
+
         public static Перем Новый(string val)
         {
             return new Перем(ValueFactory.Create(val));
@@ -93,7 +126,7 @@ namespace ScriptEngine.HostedScript
         }
 
  
-        public class Перем : IComparable<IValue>, IEquatable<IValue>
+        public class Перем : DynamicObject, IComparable<IValue>, IEquatable<IValue>
         {
             public IValue _Value;
             public string _vartype;
@@ -242,7 +275,6 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
-
             public Структура(string strProperties, params IValue[] values)
             {
                 _vartype = "Структура";
@@ -255,6 +287,19 @@ namespace ScriptEngine.HostedScript
                 _vartype = "Структура";
                 _val = new StructureImpl(strProperties);
                 _Value = _val;
+            }
+
+            // получение свойства
+            public override bool TryGetMember(GetMemberBinder binder, out object result)
+            {
+                result = null;
+                var v = Variable.Create(null, "");
+                if (_val.HasProperty(binder.Name, v))
+                {
+                    result = Вернуть(v.Value);
+                    return true;
+                }
+                return false;
             }
 
             public int Количество()
@@ -282,6 +327,7 @@ namespace ScriptEngine.HostedScript
 
             public void Вставить(string name, Перем val = null)
             {
+                
                 _val.Insert(name, val.Value);
             }
 
@@ -333,11 +379,6 @@ namespace ScriptEngine.HostedScript
             return new Структура(strProperties);
         }
 
-        public Структура Новый_Структура(string strProperties, object arg)
-        {
-            return Новый_Структура(strProperties, new object[] {arg});
-        }
-
         public Структура Новый_Структура(string strProperties, params object[] values)
         {
             var arr = new List<IValue>();
@@ -353,6 +394,7 @@ namespace ScriptEngine.HostedScript
                 }
             return new Структура(strProperties, arr.ToArray());
         }
+
 
         public class Соответствие : Список
         {
