@@ -17,8 +17,11 @@ namespace ScriptEngine.HostedScript.Library
 
     public class functions : onesharp
     {
-        public functions() {
+        string ИмяМодуля;
+
+        public functions(string _ИмяМодуля) {
             МоментЗапуска = ТекущаяУниверсальнаяДатаВМиллисекундах();
+            ИмяМодуля = _ИмяМодуля;
         }
 
         public decimal МоментЗапуска;
@@ -97,7 +100,7 @@ namespace ScriptEngine.HostedScript.Library
                         дЗначение = ПолучитьДвоичныеДанныеИзСтроки(Строка(Значение));
                     }
 
-                    var дКлюч = ПолучитьДвоичныеДанныеИзСтроки(Ключ);
+                    var дКлюч = ПолучитьДвоичныеДанныеИзСтроки((string)Ключ);
                     var рдКлюч = дКлюч.Размер();
                     var рдЗначение = дЗначение.Размер();
                     var бРезультат = Новый_БуферДвоичныхДанных(6);
@@ -121,7 +124,7 @@ namespace ScriptEngine.HostedScript.Library
             if (ТипЗнч(Данные) == Тип("ДвоичныеДанные")) {
                 ДвоичныеДанные дд = Данные as ДвоичныеДанные;
                 рдДанные = дд.Размер();
-                if (рдДанные == 0) return Неопределено;
+                if (рдДанные == 0) return (Структура)Неопределено;
                 бдДанные = ПолучитьБуферДвоичныхДанныхИзДвоичныхДанных(дд);
             }
             else if (ТипЗнч(Данные) == Тип("БуферДвоичныхДанных"))
@@ -130,7 +133,7 @@ namespace ScriptEngine.HostedScript.Library
                 рдДанные = бдДанные.Размер;
             }
             else 
-                return Неопределено;
+                return (Структура)Неопределено;
 
 	        var Позиция = 0;
 
@@ -144,7 +147,7 @@ namespace ScriptEngine.HostedScript.Library
                 var рдЗначение = бдДанные.ПрочитатьЦелое32(Позиция + 2);
 
                 if (рдКлюч + рдЗначение > рдДанные)  // Это не структура
-                    return Неопределено;
+                    return (Структура)Неопределено;
 
                 var Ключ = ПолучитьСтрокуИзДвоичныхДанных(ПолучитьДвоичныеДанныеИзБуфераДвоичныхДанных(бдДанные.Прочитать(Позиция + 6, рдКлюч)));
                 var бЗначение = бдДанные.Прочитать(Позиция + 6 + рдКлюч, рдЗначение);
@@ -205,7 +208,7 @@ namespace ScriptEngine.HostedScript.Library
                 //Сообщить(ОписаниеОшибки());
                 if (Соединение == Неопределено)
                 {
-                    Сообщить("starter: Хост недоступен: " + Хост + ":" + Порт);
+                    Сообщить(ИмяМодуля + ": Хост недоступен: " + Хост + ":" + Порт);
                 } 
                 else
                 {
@@ -266,7 +269,7 @@ namespace ScriptEngine.HostedScript.Library
     public class useyourmind : AutoContext<useyourmind>
     {
 
-        private functions func = new functions();
+        private functions func = new functions("script");
    
         public void initobj(SystemGlobalContext syscon)
         {

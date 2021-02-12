@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ScriptEngine.Machine;
-using ScriptEngine.Machine.Values;
+using ScriptEngine.Machine.Contexts;
 using ScriptEngine.HostedScript.Library;
 using ScriptEngine.HostedScript.Library.Binary;
 using ScriptEngine.HostedScript.Library.Net;
+
 
 namespace ScriptEngine.HostedScript
 {
@@ -17,15 +18,105 @@ namespace ScriptEngine.HostedScript
         public SystemGlobalContext _syscon;
         public GlobalBinaryData _glbin;
         public FileOperations _fileop;
+        public StringOperations _strop;
+        public MiscGlobalFunctions _miscf;
+        public symbols Символы;
+        public urlenc СпособКодированияСтроки;
 
         [AttributeUsage(AttributeTargets.Parameter)]
         public class ByRefAttribute : Attribute
         {
         }
 
-        public Перем Неопределено;
+        public object Неопределено;
         public bool Истина = true;
         public bool Ложь = false;
+
+
+        public class urlenc
+        {
+            EnumerationValue URLEncoding;
+            EnumerationValue URLInURLEncoding;
+
+            public urlenc() {
+                var encMethod = GlobalsManager.GetEnum<StringEncodingMethodEnum>();
+                URLEncoding = encMethod.URLEncoding;
+                URLInURLEncoding = encMethod.URLInURLEncoding;
+            }
+
+            public EnumerationValue КодировкаURL
+            {
+                get
+                {
+                    return URLEncoding;
+                }
+            }
+
+            public EnumerationValue URLВКодировкеURL
+            {
+                get
+                {
+                    return URLInURLEncoding;
+                }
+            }
+
+        }
+
+
+        public class symbols
+        {
+
+            public string ПС
+            {
+                get
+                {
+                    return "\n";
+                }
+            }
+
+            public string ВК
+            {
+                get
+                {
+                    return "\r";
+                }
+            }
+
+            public string ВТаб
+            {
+                get
+                {
+                    return "\v";
+                }
+            }
+
+            public string Таб
+            {
+                get
+                {
+                    return "\t";
+                }
+            }
+
+            public string ПФ
+            {
+                get
+                {
+                    return "\f";
+                }
+            }
+
+            public string НПП
+            {
+                get
+                {
+                    return "\u00A0";
+                }
+            }
+
+        }
+
+
 
         public string[] АргументыКоманднойСтроки
         {
@@ -73,7 +164,7 @@ namespace ScriptEngine.HostedScript
                         {
                             return Decimal.ToInt32(n);
                         }
-                        catch (OverflowException e)
+                        catch //(OverflowException e)
                         {
                             return n;
                         }
@@ -97,7 +188,7 @@ namespace ScriptEngine.HostedScript
                         {
                             return Decimal.ToInt32(n);
                         }
-                        catch (OverflowException e)
+                        catch //(OverflowException e)
                         {
                             return n;
                         }
@@ -105,6 +196,8 @@ namespace ScriptEngine.HostedScript
                         return v.AsString();
                     case "Булево":
                         return v.AsBoolean();
+                    case "Неопределено":
+                        return null;
                     default:
                         return Новый(v);
                 }
@@ -136,7 +229,7 @@ namespace ScriptEngine.HostedScript
 
         public static Перем Новый(IValue val = null) {
 
-            if (val == null) return new Перем(ValueFactory.Create());
+            if (val == null) return new Перем();
 
             var vartype = val.SystemType.ToString();
             switch (vartype)
@@ -214,11 +307,6 @@ namespace ScriptEngine.HostedScript
                 return _Value.Equals(other);
             }
 
-            public override bool Equals(object other)
-            {
-                return false;
-            }
-
             public override int GetHashCode()
             {
                 return 0;
@@ -226,19 +314,19 @@ namespace ScriptEngine.HostedScript
 
             #endregion
 
-            public bool Equals(Перем other)
+            public override bool Equals(object other)
             {
                 if (other is null) return (_Value is null);
-                return _Value.Equals(other._Value);
+                return _Value.Equals(other);
             }
 
-            public static bool operator ==(Перем lhs, Перем rhs)
+            public static bool operator ==(Перем lhs, object rhs)
             {
                 if (lhs is null) return (bool)(rhs is null);
                 return lhs.Equals(rhs);
             }
 
-            public static bool operator !=(Перем lhs, Перем rhs)
+            public static bool operator !=(Перем lhs, object rhs)
             {
                 if (lhs is null) return (bool)!(rhs is null);
                 return !lhs.Equals(rhs);
@@ -414,17 +502,17 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
-            public object Получить(string name = null)
+            public object Получить(object key)
             {
                 try
-                { 
-                    return Вернуть(_val.GetPropValue(_val.FindProperty(name))); 
+                {
+                    return Вернуть(_val.Retrieve(Знач(key)));
                 }
-                catch 
+                catch
                 {
                     return null;
                 }
-                
+
             }
 
             public void Вставить(object key, object val = null)
@@ -658,6 +746,13 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
+            public string УдаленныйУзел => _val.RemoteEndPoint;
+
+            public bool Активно
+            {
+                get { return _val.IsActive; }
+            }
+
             public string Статус
             {
                 get { return _val.Status; }
@@ -677,6 +772,16 @@ namespace ScriptEngine.HostedScript
             public ДвоичныеДанные ПолучитьДвоичныеДанные()
             {
                 return new ДвоичныеДанные(_val.GetBinaryData());
+            }
+
+            public string ПолучитьСтроку(string enc = null)
+            {
+                return _val.GetString(enc);
+            }
+
+            public string ПолучитьЗаголовки()
+            {
+                return _val.GetHeaders();
             }
 
             public void Закрыть()
@@ -716,10 +821,12 @@ namespace ScriptEngine.HostedScript
             {
                 _val.Start();
             }
+
             public void ЗапуститьАсинхронно()
             {
                 _val.StartAsync();
             }
+
             public TCPСоединение ОжидатьСоединения(int timeout = 0)
             {
                 return new TCPСоединение(_val.WaitForConnection(timeout));
@@ -767,17 +874,60 @@ namespace ScriptEngine.HostedScript
 
         }
 
+
+        public class Файл : Перем
+        {
+            FileContext _val;
+
+            public FileContext Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public Файл(IValue val)
+            {
+                _vartype = "Файл";
+                _val = val as FileContext;
+                _Value = val;
+            }
+
+            public string Имя => _val.Name;
+            public string Расширение => _val.Extension;
+            public bool Существует() => _val.Exist();
+
+        }
+
+        public static Файл Новый_Файл(string filename)
+        {
+            return new Файл(new FileContext(filename));
+        }
+
+
+
         public static СистемнаяИнформация Новый_СистемнаяИнформация()
         {
             return new СистемнаяИнформация();
         }
 
+        public string ОписаниеОшибки(Exception e) { return "Ошибка!" + e.Message; }
+
+        public string ВызватьИсключение(string exept) { return exept; }
 
 
         public string ТекущийКаталог()
         {
             return _fileop.CurrentDirectory();
         }
+
+        public string ОбъединитьПути(string path1, string path2, string path3 = null, string path4 = null)
+        {
+            return _fileop.CombinePath(path1, path2, path3, path4);
+        }
+
+
 
         public void ЗапуститьПриложение(string cmdLine, string currentDir = null, bool wait = false, [ByRef] Перем retCode = null)
         {
@@ -814,7 +964,7 @@ namespace ScriptEngine.HostedScript
             {
                 return Decimal.ToInt32(n);
             }
-            catch (OverflowException e)
+            catch //(OverflowException e)
             {
                 return n;
             }
@@ -904,12 +1054,37 @@ namespace ScriptEngine.HostedScript
             return result;
         }
 
+        public static int Найти(string haystack, string needle)
+        {
+            return haystack.IndexOf(needle, StringComparison.Ordinal) + 1;
+        }
+
+        public static string СтрЗаменить(string sourceString, string searchVal, string newVal)
+        {
+            return sourceString.Replace(searchVal, newVal);
+        }
+
+        public static int СтрДлина(string str)
+        {
+            return str.Length;
+        }
+
+        public static string СокрЛП(string str)
+        {
+            return str.Trim();
+        }
+
+        public static string СокрЛП(object str)
+        {
+            return Знач(str).AsString().Trim();
+        }
+
+
+
         public static void Приостановить(int delay)
         {
             System.Threading.Thread.Sleep(delay);
         }
-
-
 
         public static decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
         {
@@ -926,9 +1101,14 @@ namespace ScriptEngine.HostedScript
             return new ДвоичныеДанные(_glbin.ConcatenateBinaryData(arg.Impl));
         }
 
-        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(object arg)
+        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string arg, string enc)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString((string)Вернуть(arg)));
+            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString(arg, Знач(enc)));
+        }
+
+        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(object arg, string enc)
+        {
+            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString((string)Вернуть(arg), Знач(enc)));
         }
 
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string arg)
@@ -952,10 +1132,21 @@ namespace ScriptEngine.HostedScript
         }
 
 
+        public string РаскодироватьСтроку(string encodedString, EnumerationValue codeType, IValue encoding = null)
+        {
+            return _miscf.DecodeString(encodedString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
+        }
+
+
         public onesharp ()
         {
             _glbin = new GlobalBinaryData();
             _fileop = new FileOperations();
+            _strop = new StringOperations();
+            _miscf = new MiscGlobalFunctions();
+
+            Символы = new symbols();
+            СпособКодированияСтроки  = new urlenc();
         }
     }
 }

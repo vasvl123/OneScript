@@ -41,7 +41,9 @@ namespace starter
         Массив Соединения;
         Массив мЗадачи;
 
-        public string ОписаниеОшибки() { return "Ошибка!"; }
+        public starter(string _ИмяМодуля) :base (_ИмяМодуля)
+        {
+        }
 
         public bool ЗапуститьПроцесс(string Имя, int Порт, string Параметры = "")
         {
@@ -55,14 +57,33 @@ namespace starter
                 ЗапуститьПриложение(mono + "uascript.exe " + Имя + " " + Порт + " " + Параметры, ТекущийКаталог());
                 Приостановить(200); // ???
             }
-            catch
+            catch (Exception e)
             {
-                //Сообщить(ОписаниеОшибки());
+                Сообщить(ОписаниеОшибки(e));
                 return Ложь;
             }
             return Истина;
         } // ЗапуститьПроцесс()
 
+        public bool ЗапуститьПроцесс2(string Имя, int Порт, string Параметры = "")
+        {
+            try
+            {
+                Сообщить("Запуск " + Имя + " ...");
+                // Проверка свободного порта
+                TCPСервер Сервер = Новый_TCPСервер(Порт);
+                Сервер.Запустить();
+                Сервер.Остановить();
+                ЗапуститьПриложение(mono + " " + Имя + " " + Порт + " " + Параметры, ТекущийКаталог());
+                Приостановить(200); // ???
+            }
+            catch (Exception e)
+            {
+                Сообщить(ОписаниеОшибки(e));
+                return Ложь;
+            }
+            return Истина;
+        } // ЗапуститьПроцесс()
 
         public void Main()
         {
@@ -185,7 +206,7 @@ namespace starter
                     {
                         if (структЗадача.Запущен == Ложь)
                         {
-                            структЗадача.Запущен = ЗапуститьПроцесс("webserver.os", ПортВ, Строка(ПортЗ));
+                            структЗадача.Запущен = ЗапуститьПроцесс2("webserver.exe", ПортВ, Строка(ПортЗ));
                         }
                         else
                         {
@@ -272,9 +293,9 @@ namespace starter
                         {
                             ДанныеВходящие = ДвоичныеДанныеВСтруктуру(Соединение.ПолучитьДвоичныеДанные()) as Структура;
                         }
-                        catch
+                        catch (Exception e)
                         {
-                            Сообщить("starter: " + ОписаниеОшибки());
+                            Сообщить("starter: " + ОписаниеОшибки(e));
                         }
                         if (ДанныеВходящие == Неопределено)
                         {
@@ -348,7 +369,7 @@ namespace starter
         public static void Main(string[] args)
         {
             var hostedScript = new HostedScriptEngine();
-            var app = new starter();
+            var app = new starter("starter");
             app._syscon = new SystemGlobalContext();
             app._syscon.ApplicationHost = new ApplicationHost();
             app.Main();
