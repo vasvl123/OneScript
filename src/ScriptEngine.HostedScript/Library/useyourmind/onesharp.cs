@@ -682,6 +682,16 @@ namespace ScriptEngine.HostedScript
                 get { return _val.Size; }
             }
 
+            public int Получить(int arg)
+            {
+                return _val.Get(arg);
+            }
+
+            public void Установить(int arg1, int arg2)
+            {
+                _val.Set(arg1, Знач(arg2));
+            }
+
             public БуферДвоичныхДанных Прочитать(int arg1, int arg2)
             {
                 return new БуферДвоичныхДанных(_val.Read(arg1, arg2));
@@ -1130,7 +1140,15 @@ namespace ScriptEngine.HostedScript
         {
             return _glbin.GetStringFromBinaryData(arg.Impl);
         }
+        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзBase64Строки(string arg)
+        {
+            return new ДвоичныеДанные(_glbin.GetBinaryDataFromBase64String(arg));
+        }
 
+        public string ПолучитьBase64СтрокуИзДвоичныхДанных(ДвоичныеДанные data)
+        {
+            return _glbin.GetBase64StringFromBinaryData(data.Impl);
+        }
 
         public string РаскодироватьСтроку(string encodedString, EnumerationValue codeType, IValue encoding = null)
         {
