@@ -3,11 +3,13 @@ using System.Dynamic;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Security.Cryptography;
 using ScriptEngine.Machine;
 using ScriptEngine.Machine.Contexts;
 using ScriptEngine.HostedScript.Library;
 using ScriptEngine.HostedScript.Library.Binary;
 using ScriptEngine.HostedScript.Library.Net;
+using ScriptEngine.HostedScript.Library.Hash;
 
 
 namespace ScriptEngine.HostedScript
@@ -20,6 +22,8 @@ namespace ScriptEngine.HostedScript
         public FileOperations _fileop;
         public StringOperations _strop;
         public MiscGlobalFunctions _miscf;
+        public static FileStreamsManager _filestrm;    
+
         public symbols Символы;
         public urlenc СпособКодированияСтроки;
 
@@ -38,7 +42,8 @@ namespace ScriptEngine.HostedScript
             EnumerationValue URLEncoding;
             EnumerationValue URLInURLEncoding;
 
-            public urlenc() {
+            public urlenc()
+            {
                 var encMethod = GlobalsManager.GetEnum<StringEncodingMethodEnum>();
                 URLEncoding = encMethod.URLEncoding;
                 URLInURLEncoding = encMethod.URLInURLEncoding;
@@ -152,7 +157,8 @@ namespace ScriptEngine.HostedScript
 
         }
 
-        public static object Вернуть(object arg) {
+        public static object Вернуть(object arg)
+        {
             if (arg is Перем)
             {
                 var v = ((Перем)arg);
@@ -216,6 +222,10 @@ namespace ScriptEngine.HostedScript
                 return ValueFactory.Create((string)p);
             else if (p is bool)
                 return ValueFactory.Create((bool)p);
+            else if (p is long)
+                return ValueFactory.Create((long)p);
+            else if (p is uint)
+                return ValueFactory.Create((uint)p);
             else if (p is Перем)
                 return ((Перем)p)._Value;
 
@@ -227,34 +237,35 @@ namespace ScriptEngine.HostedScript
             return new Перем(ValueFactory.Create(val));
         }
 
-        public static Перем Новый(IValue val = null) {
+        public static Перем Новый(IValue val = null)
+        {
 
             if (val == null) return new Перем();
 
             var vartype = val.SystemType.ToString();
             switch (vartype)
             {
-            case "Структура":
-                return new Структура(val);
-            case "Соответствие":
-                return new Соответствие(val);
-            case "Массив":
-                return new Массив(val);
-            case "ДвоичныеДанные":
-                return new ДвоичныеДанные(val);
-            case "БуферДвоичныхДанных":
-                return new БуферДвоичныхДанных(val);
-            case "TCPСоединение":
-                return new TCPСоединение(val);
-            case "TCPСервер":
-                return new TCPСервер(val);
-            default:
-                return new Перем(val);
+                case "Структура":
+                    return new Структура(val);
+                case "Соответствие":
+                    return new Соответствие(val);
+                case "Массив":
+                    return new Массив(val);
+                case "ДвоичныеДанные":
+                    return new ДвоичныеДанные(val);
+                case "БуферДвоичныхДанных":
+                    return new БуферДвоичныхДанных(val);
+                case "TCPСоединение":
+                    return new TCPСоединение(val);
+                case "TCPСервер":
+                    return new TCPСервер(val);
+                default:
+                    return new Перем(val);
             }
 
         }
 
- 
+
         public class Перем : DynamicObject, IComparable<IValue>, IEquatable<IValue>
         {
             public IValue _Value;
@@ -290,7 +301,7 @@ namespace ScriptEngine.HostedScript
             {
                 return _Value.AsString();
             }
-             
+
             #region IComparable<IValue> Members
 
             public int CompareTo(IValue other)
@@ -335,9 +346,10 @@ namespace ScriptEngine.HostedScript
 
         }
 
-        public class Список : Перем, IEnumerable<КлючИЗначение> 
+        public class Список : Перем, IEnumerable<КлючИЗначение>
         {
-            public virtual IEnumerator<КлючИЗначение> GetEnumerator() {
+            public virtual IEnumerator<КлючИЗначение> GetEnumerator()
+            {
                 return null;
             }
 
@@ -434,7 +446,7 @@ namespace ScriptEngine.HostedScript
 
             public void Вставить(string name, object val = null)
             {
-                
+
                 _val.Insert(name, Знач(val));
             }
 
@@ -464,8 +476,9 @@ namespace ScriptEngine.HostedScript
         public static Структура Новый_Структура(string strProperties, params object[] values)
         {
             var arr = new List<IValue>();
-            foreach (object p in values) {
-                    arr.Add(Знач(p));
+            foreach (object p in values)
+            {
+                arr.Add(Знач(p));
             }
             return new Структура(strProperties, arr.ToArray());
         }
@@ -628,7 +641,7 @@ namespace ScriptEngine.HostedScript
         public class ДвоичныеДанные : Перем
         {
             BinaryDataContext _val;
- 
+
             public BinaryDataContext Impl
             {
                 get
@@ -661,7 +674,7 @@ namespace ScriptEngine.HostedScript
         public class БуферДвоичныхДанных : Перем
         {
             BinaryDataBuffer _val;
- 
+
             public BinaryDataBuffer Impl
             {
                 get
@@ -677,7 +690,7 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
-            public double Размер
+            public long Размер
             {
                 get { return _val.Size; }
             }
@@ -707,6 +720,11 @@ namespace ScriptEngine.HostedScript
                 return (int)_val.ReadInt32(arg1);
             }
 
+            public ulong ПрочитатьЦелое64(int arg1)
+            {
+                return _val.ReadInt64(arg1);
+            }
+
             public void ЗаписатьЦелое16(int arg1, int arg2)
             {
                 _val.WriteInt16(arg1, ValueFactory.Create(arg2));
@@ -717,6 +735,11 @@ namespace ScriptEngine.HostedScript
                 _val.WriteInt32(arg1, ValueFactory.Create(arg2));
             }
 
+            public void ЗаписатьЦелое64(int arg1, ulong arg2)
+            {
+                _val.WriteInt64(arg1, ValueFactory.Create(arg2));
+            }
+
             public void ЗаписатьЦелое16(int arg1, Перем arg2)
             {
                 _val.WriteInt16(arg1, arg2._Value);
@@ -725,6 +748,11 @@ namespace ScriptEngine.HostedScript
             public void ЗаписатьЦелое32(int arg1, Перем arg2)
             {
                 _val.WriteInt32(arg1, arg2._Value);
+            }
+
+            public void ЗаписатьЦелое64(int arg1, Перем arg2)
+            {
+                _val.WriteInt64(arg1, arg2._Value);
             }
 
         }
@@ -874,7 +902,7 @@ namespace ScriptEngine.HostedScript
                 _sysenv = new SystemEnvironmentContext();
             }
 
-             public string ВерсияОС
+            public string ВерсияОС
             {
                 get
                 {
@@ -907,6 +935,7 @@ namespace ScriptEngine.HostedScript
             public string Имя => _val.Name;
             public string Расширение => _val.Extension;
             public bool Существует() => _val.Exist();
+            public DateTime ПолучитьВремяИзменения() => _val.GetModificationTime();
 
         }
 
@@ -915,6 +944,171 @@ namespace ScriptEngine.HostedScript
             return new Файл(new FileContext(filename));
         }
 
+
+        public class ТекстовыйДокумент : Перем
+        {
+            TextDocumentContext _val;
+
+            public TextDocumentContext Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public ТекстовыйДокумент(IValue val)
+            {
+                _vartype = "ТекстовыйДокумент";
+                _val = val as TextDocumentContext;
+                _Value = val;
+            }
+
+            public void Записать(string path, IValue encoding = null, string lineSeparator = null) => _val.Write(path, encoding, lineSeparator);
+
+        }
+
+        public static ТекстовыйДокумент Новый_ТекстовыйДокумент()
+        {
+            return new ТекстовыйДокумент(new TextDocumentContext());
+        }
+
+
+        public enum ХешФункция
+        {
+            MD5,
+            SHA1,
+            SHA256,
+            SHA384,
+            SHA512,
+            CRC32
+        }
+
+        static HashAlgorithm convfunc(ХешФункция func)
+        {
+            return HashFunctionEnum.GetProvider(Знач(func.ToString()));
+        }
+
+        public class ХешированиеДанных : Перем
+        {
+            HashImpl _val;
+            HashFunctionEnum _hfunc;
+
+            public HashImpl Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public ХешированиеДанных(IValue val)
+            {
+                _vartype = "ТекстовыйДокумент";
+                _val = val as HashImpl;
+                _Value = val;
+            }
+
+            public void Добавить(object toAdd, uint count = 0) => _val.Append(Знач(toAdd),count);
+            public ДвоичныеДанные ХешСумма => new ДвоичныеДанные(_val.Hash);
+
+        }
+
+        public static ХешированиеДанных Новый_ХешированиеДанных(ХешФункция provider, IValue enumValue = null)
+        {
+            return new ХешированиеДанных(new HashImpl(convfunc(provider), enumValue));
+        }
+
+
+        public enum ПозицияВПотоке
+        {
+            Начало,
+            Конец,
+            Текущая
+        }
+
+        public class ФайловыйПоток : Перем
+        {
+            FileStreamContext _val;
+
+            public FileStreamContext Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public ФайловыйПоток(IValue val)
+            {
+                _vartype = "ФайловыйПоток";
+                _val = val as FileStreamContext;
+                _Value = val;
+            }
+
+            StreamPositionEnum convpos(ПозицияВПотоке initpos)
+            {
+                switch (initpos)
+                {
+                    case ПозицияВПотоке.Начало: return StreamPositionEnum.Begin;
+                    case ПозицияВПотоке.Конец: return StreamPositionEnum.End;
+                }
+                return StreamPositionEnum.Current;
+            }
+
+            public long Перейти(long offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
+            {
+                return _val.Seek((int)offset, convpos(initialPosition));
+            }
+
+            public long Прочитать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
+            {
+                return _val.Read(buffer.Impl, positionInBuffer, number);
+            }
+
+            public void Записать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
+            {
+                _val.Write(buffer.Impl, positionInBuffer, number);
+            }
+
+            public void КопироватьВ(ФайловыйПоток targetStream, int bufferSize = 0)
+            {
+                _val.CopyTo(targetStream._Value, bufferSize);
+            }
+
+
+            public void СброситьБуферы() => _val.Flush();
+            public void Закрыть() => _val.Close();
+            public long Размер() => _val.Size();
+            public long ТекущаяПозиция() => _val.CurrentPosition();
+
+            public bool ДоступнаЗапись => _val.CanWrite;
+            public bool ДоступноЧтение => _val.CanRead;
+
+        }
+
+
+        public static class ФайловыеПотоки {
+        
+            public static ФайловыйПоток ОткрытьДляЗаписи(string fileName)
+            {
+                if (_filestrm == null)
+                {
+                    _filestrm = new FileStreamsManager();
+                }
+                return new ФайловыйПоток(_filestrm.OpenForWrite(fileName));
+            }
+
+            public static ФайловыйПоток ОткрытьДляЧтения(string fileName)
+            {
+                if (_filestrm == null)
+                {
+                    _filestrm = new FileStreamsManager();
+                }
+                return new ФайловыйПоток(_filestrm.OpenForRead(fileName));
+            }
+        
+        }
 
 
         public static СистемнаяИнформация Новый_СистемнаяИнформация()
@@ -935,6 +1129,11 @@ namespace ScriptEngine.HostedScript
         public string ОбъединитьПути(string path1, string path2, string path3 = null, string path4 = null)
         {
             return _fileop.CombinePath(path1, path2, path3, path4);
+        }
+
+        public void СоздатьКаталог(string path)
+        {
+            _fileop.CreateDirectory(path);
         }
 
 
