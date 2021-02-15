@@ -32,10 +32,11 @@ namespace ScriptEngine.HostedScript
         {
         }
 
-        public object Неопределено;
-        public bool Истина = true;
-        public bool Ложь = false;
+        public static object Неопределено;
+        public static bool Истина = true;
+        public static bool Ложь = false;
 
+        public static object Empty;
 
         public class urlenc
         {
@@ -226,18 +227,15 @@ namespace ScriptEngine.HostedScript
                 return ValueFactory.Create((long)p);
             else if (p is uint)
                 return ValueFactory.Create((uint)p);
+            else if (p is DateTime)
+                return ValueFactory.Create((DateTime)p);
             else if (p is Перем)
                 return ((Перем)p)._Value;
 
             return p as IValue;
         }
 
-        public static Перем Новый(string val)
-        {
-            return new Перем(ValueFactory.Create(val));
-        }
-
-        public static Перем Новый(IValue val = null)
+         public static Перем Новый(IValue val = null)
         {
 
             if (val == null) return new Перем();
@@ -328,12 +326,12 @@ namespace ScriptEngine.HostedScript
             public override bool Equals(object other)
             {
                 if (other is null) return (_Value is null);
-                return _Value.Equals(other);
+                return Вернуть(_Value).Equals(other);
             }
 
             public static bool operator ==(Перем lhs, object rhs)
             {
-                if (lhs is null) return (bool)(rhs is null);
+                if (lhs is null || lhs._vartype == "Неопределено") return (bool)(rhs is null);
                 return lhs.Equals(rhs);
             }
 
@@ -426,17 +424,17 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
-            public bool Свойство(string name, [ByRef] object value = null)
+            public bool Свойство(string name)
             {
-                if (value == null)
-                    return _val.HasProperty(name);
-                else
-                {
-                    var v = Variable.Create(null, "");
-                    var b = _val.HasProperty(name, v);
-                    value = Вернуть(v.Value);
-                    return b;
-                }
+                return _val.HasProperty(name);
+            }
+
+            public bool Свойство(string name, ref Перем value)
+            {
+                var v = Variable.Create(null, "");
+                var b = _val.HasProperty(name, v);
+                value = Новый(v.Value);
+                return b;
             }
 
             public object Получить(string name = null)
@@ -1136,6 +1134,10 @@ namespace ScriptEngine.HostedScript
             _fileop.CreateDirectory(path);
         }
 
+        public Массив НайтиФайлы(string dir, string mask = null, bool recursive = false)
+        {
+            return new Массив(_fileop.FindFiles(dir, mask, recursive));
+        }
 
 
         public void ЗапуститьПриложение(string cmdLine, string currentDir = null, bool wait = false, [ByRef] Перем retCode = null)
