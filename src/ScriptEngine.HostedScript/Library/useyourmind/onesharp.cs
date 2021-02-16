@@ -179,6 +179,8 @@ namespace ScriptEngine.HostedScript
                         return v._Value.AsString();
                     case "Булево":
                         return v._Value.AsBoolean();
+                    case "Дата":
+                        return v._Value.AsDate();
                     default:
                         return arg;
                 }
@@ -203,6 +205,8 @@ namespace ScriptEngine.HostedScript
                         return v.AsString();
                     case "Булево":
                         return v.AsBoolean();
+                    case "Дата":
+                        return v.AsDate();
                     case "Неопределено":
                         return null;
                     default:
@@ -215,7 +219,9 @@ namespace ScriptEngine.HostedScript
 
         public static IValue Знач(object p)
         {
-            if (p is int)
+            if (p is null)
+                return null;
+            else if (p is int)
                 return ValueFactory.Create((int)p);
             else if (p is decimal)
                 return ValueFactory.Create((decimal)p);
@@ -297,6 +303,7 @@ namespace ScriptEngine.HostedScript
 
             public override string ToString()
             {
+                if (_Value == null) return "";
                 return _Value.AsString();
             }
 
@@ -437,7 +444,7 @@ namespace ScriptEngine.HostedScript
                 return b;
             }
 
-            public object Получить(string name = null)
+            public object Получить(string name)
             {
                 return Вернуть(_val.GetPropValue(_val.FindProperty(name)));
             }
@@ -1165,6 +1172,7 @@ namespace ScriptEngine.HostedScript
 
         public static string Строка(object arg)
         {
+            if (arg == null) return "";
             return Знач(arg).AsString();
         }
 
