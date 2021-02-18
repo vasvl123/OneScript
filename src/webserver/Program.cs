@@ -377,10 +377,10 @@ namespace webserver
                 {
                     ДвоичныеДанныеОтвета = Задача.Результат;
                     Заголовок.Вставить("Content-Length", ДвоичныеДанныеОтвета.Размер());
-                    var ContentType = "";
-                    if (Задача.Свойство("ContentType", ContentType))
+                    Перем ContentType = null;
+                    if (Задача.Свойство("ContentType", ref ContentType))
                     {
-                        Заголовок.Вставить("Content-Type", ContentType);
+                        Заголовок.Вставить("Content-Type", Строка(ContentType));
                     }
                 }
                 else
@@ -739,10 +739,10 @@ namespace webserver
                                     dynamic Задача = Задачи.Получить(КонтроллерЗапрос.taskid) as Структура;
                                     if (!(Задача == Неопределено))
                                     {
-                                        var ContentType = "";
-                                        if (КонтроллерЗапрос.Свойство("ContentType", ContentType))
+                                        Перем ContentType = null;
+                                        if (КонтроллерЗапрос.Свойство("ContentType", ref ContentType))
                                         {
-                                            Задача.Вставить("ContentType", ContentType);
+                                            Задача.Вставить("ContentType", Строка(ContentType));
                                         }
                                         Задача.Результат = КонтроллерЗапрос.Результат;
                                     }

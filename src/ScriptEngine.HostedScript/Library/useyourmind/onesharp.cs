@@ -22,7 +22,7 @@ namespace ScriptEngine.HostedScript
         public FileOperations _fileop;
         public StringOperations _strop;
         public MiscGlobalFunctions _miscf;
-        public static FileStreamsManager _filestrm;    
+        public static FileStreamsManager _filestrm;
 
         public symbols Символы;
         public urlenc СпособКодированияСтроки;
@@ -241,8 +241,19 @@ namespace ScriptEngine.HostedScript
             return p as IValue;
         }
 
-         public static Перем Новый(IValue val = null)
+        public static Перем Новый(object _val = null)
         {
+            IValue val = null;
+
+            if (val is IValue)
+            {
+                val = (IValue)_val;
+            }
+            else
+            {
+                val = Знач(_val);
+
+            }
 
             if (val == null) return new Перем();
 
@@ -333,7 +344,9 @@ namespace ScriptEngine.HostedScript
             public override bool Equals(object other)
             {
                 if (other is null) return (_Value is null);
-                return Вернуть(_Value).Equals(other);
+                var v = Вернуть(_Value);
+                if (v is Перем) return (v as Перем)._Value.Equals(other);
+                return v.Equals(other);
             }
 
             public static bool operator ==(Перем lhs, object rhs)
@@ -365,8 +378,8 @@ namespace ScriptEngine.HostedScript
 
         }
 
-
-        public class Структура : Список
+  
+    public class Структура : Список
         {
             StructureImpl _val;
 
@@ -441,6 +454,14 @@ namespace ScriptEngine.HostedScript
                 var v = Variable.Create(null, "");
                 var b = _val.HasProperty(name, v);
                 value = Новый(v.Value);
+                return b;
+            }
+
+            public bool Свойство(string name, out object value)
+            {
+                var v = Variable.Create(null, "");
+                var b = _val.HasProperty(name, v);
+                value = Вернуть(v.Value);
                 return b;
             }
 
@@ -939,7 +960,9 @@ namespace ScriptEngine.HostedScript
 
             public string Имя => _val.Name;
             public string Расширение => _val.Extension;
+            public string ИмяБезРасширения => _val.BaseName;
             public bool Существует() => _val.Exist();
+            public long Размер() => _val.Size();
             public DateTime ПолучитьВремяИзменения() => _val.GetModificationTime();
 
         }
@@ -991,7 +1014,14 @@ namespace ScriptEngine.HostedScript
 
         static HashAlgorithm convfunc(ХешФункция func)
         {
-            return HashFunctionEnum.GetProvider(Знач(func.ToString()));
+            var algName = func.ToString();
+            if (algName == "CRC32")
+                return new ScriptEngine.HostedScript.Library.Hash.Crc32();
+
+            var ret = HashAlgorithm.Create(algName);
+            if (ret == null)
+                throw RuntimeException.InvalidArgumentType();
+            return ret;
         }
 
         public class ХешированиеДанных : Перем
