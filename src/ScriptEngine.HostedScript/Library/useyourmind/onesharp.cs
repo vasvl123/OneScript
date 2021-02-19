@@ -274,6 +274,8 @@ namespace ScriptEngine.HostedScript
                     return new TCPСоединение(val);
                 case "TCPСервер":
                     return new TCPСервер(val);
+                case "Файл":
+                    return new Файл(val);
                 default:
                     return new Перем(val);
             }
@@ -453,27 +455,34 @@ namespace ScriptEngine.HostedScript
             {
                 var v = Variable.Create(null, "");
                 var b = _val.HasProperty(name, v);
-                value = Новый(v.Value);
+                if (b) value = Новый(v.Value);
                 return b;
             }
 
-            public bool Свойство(string name, out object value)
+            public bool Свойство(string name, ref object value)
             {
                 var v = Variable.Create(null, "");
                 var b = _val.HasProperty(name, v);
-                value = Вернуть(v.Value);
+                if (b) value = Вернуть(v.Value);
                 return b;
             }
 
             public object Получить(string name)
             {
-                return Вернуть(_val.GetPropValue(_val.FindProperty(name)));
+                var v = Variable.Create(null, "");
+                if (_val.HasProperty(name, v)) return Новый(v.Value);
+                return Неопределено;
             }
 
             public void Вставить(string name, object val = null)
             {
 
                 _val.Insert(name, Знач(val));
+            }
+            public void Удалить(string name)
+            {
+
+                _val.Remove(name);
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
@@ -1151,7 +1160,7 @@ namespace ScriptEngine.HostedScript
             return new СистемнаяИнформация();
         }
 
-        public string ОписаниеОшибки(Exception e) { return "Ошибка!" + e.Message; }
+        public string ОписаниеОшибки(Exception e) { return "Ошибка!\n" + e.Message + "\n" + e.StackTrace; }
 
         public string ВызватьИсключение(string exept) { return exept; }
 
