@@ -122,8 +122,6 @@ namespace ScriptEngine.HostedScript
 
         }
 
-
-
         public string[] АргументыКоманднойСтроки
         {
             get { return _syscon.ApplicationHost.GetCommandLineArguments(); }
@@ -131,10 +129,10 @@ namespace ScriptEngine.HostedScript
 
         public class КлючИЗначение
         {
-            private readonly IValue _key;
-            private readonly IValue _value;
+            private readonly object _key;
+            private readonly object _value;
 
-            public КлючИЗначение(IValue key, IValue value)
+            public КлючИЗначение(object key, object value)
             {
                 _key = key;
                 _value = value;
@@ -144,7 +142,7 @@ namespace ScriptEngine.HostedScript
             {
                 get
                 {
-                    return Вернуть(_key);
+                    return _key;
                 }
             }
 
@@ -152,7 +150,7 @@ namespace ScriptEngine.HostedScript
             {
                 get
                 {
-                    return Вернуть(_value);
+                    return _value;
                 }
             }
 
@@ -276,6 +274,8 @@ namespace ScriptEngine.HostedScript
                     return new TCPСервер(val);
                 case "Файл":
                     return new Файл(val);
+                case "Объект":
+                    return new Объект(_val);
                 default:
                     return new Перем(val);
             }
@@ -368,14 +368,48 @@ namespace ScriptEngine.HostedScript
 
         public class Список : Перем, IEnumerable<КлючИЗначение>
         {
+            class t_val: Dictionary<object, object> {}
+            t_val _val;
+
+            public Список()
+            {
+                _val = new t_val();    
+            }
+
             public virtual IEnumerator<КлючИЗначение> GetEnumerator()
             {
-                return null;
+                foreach (var item in _val)
+                {
+                    yield return new КлючИЗначение(
+                        item.Key, item.Value);
+                }
             }
 
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
+            }
+
+            public bool Свойство(object key, out object value)
+            {
+                return _val.TryGetValue(key, out value);
+            }
+
+            public object Получить(object key)
+            {
+                object value = null;
+                _val.TryGetValue(key, out value);
+                return value;
+            }
+
+            public void Вставить(object key, object value)
+            {
+                _val.Add(key, value);
+            }
+
+            public void Удалить(object key)
+            {
+                _val.Remove(key);
             }
 
         }
@@ -479,6 +513,7 @@ namespace ScriptEngine.HostedScript
 
                 _val.Insert(name, Знач(val));
             }
+
             public void Удалить(string name)
             {
 
@@ -490,7 +525,7 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        item.Key, item.Value);
+                        Вернуть(item.Key), Вернуть(item.Value));
                 }
 
             }
@@ -587,7 +622,7 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        item.Key, item.Value);
+                        Вернуть(item.Key), Вернуть(item.Value));
                 }
 
             }
@@ -657,7 +692,7 @@ namespace ScriptEngine.HostedScript
                 foreach (var item in _val)
                 {
                     yield return new КлючИЗначение(
-                        null, item);
+                        null, Вернуть(item));
                 }
 
             }
@@ -979,6 +1014,31 @@ namespace ScriptEngine.HostedScript
         public static Файл Новый_Файл(string filename)
         {
             return new Файл(new FileContext(filename));
+        }
+
+        public class Объект : Перем
+        {
+            object _val;
+
+            public object Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public Объект(object val)
+            {
+                _vartype = "Объект";
+                _val = val as object;
+            }
+
+        }
+
+        public static Объект Новый_Объект(object obj)
+        {
+            return new Объект(obj);
         }
 
 
