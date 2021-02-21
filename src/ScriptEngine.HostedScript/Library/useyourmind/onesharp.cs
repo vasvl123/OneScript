@@ -17,6 +17,8 @@ namespace ScriptEngine.HostedScript
     public class onesharp
     {
 
+        public string ИмяМодуля;
+
         public SystemGlobalContext _syscon;
         public GlobalBinaryData _glbin;
         public FileOperations _fileop;
@@ -732,6 +734,11 @@ namespace ScriptEngine.HostedScript
                 return _val.Size();
             }
 
+            public void Записать(object filenameOrStream)
+            {
+                _val.Write(Знач(filenameOrStream));
+            }
+
         }
 
         public static ДвоичныеДанные Новый_ДвоичныеДанные(string arg1)
@@ -872,9 +879,9 @@ namespace ScriptEngine.HostedScript
                 set { _val.WriteTimeout = value; }
             }
 
-            public void ОтправитьДвоичныеДанныеАсинхронно(ДвоичныеДанные data)
+            public void ОтправитьДвоичныеДанныеАсинхронно(ДвоичныеДанные data, bool sendlen = true)
             {
-                _val.SendBinaryDataAsync(data.Impl);
+                _val.SendBinaryDataAsync(data.Impl, sendlen);
             }
 
             public ДвоичныеДанные ПолучитьДвоичныеДанные()
@@ -1220,7 +1227,7 @@ namespace ScriptEngine.HostedScript
             return new СистемнаяИнформация();
         }
 
-        public string ОписаниеОшибки(Exception e) { return "Ошибка!\n" + e.Message + "\n" + e.StackTrace; }
+        public string ОписаниеОшибки(Exception e) { return ИмяМодуля + " ошибка!\n" + e.Message + "\n" + e.StackTrace; }
 
         public string ВызватьИсключение(string exept) { return exept; }
 
@@ -1372,6 +1379,34 @@ namespace ScriptEngine.HostedScript
             return result;
         }
 
+        public static string ВРег(string arg)
+        {
+            return arg.ToUpper();
+        }
+
+        public static string НРег(string arg)
+        {
+            return arg.ToLower();
+        }
+
+        public static int КодСимвола(string strChar, int position = 0)
+        {
+            int result;
+            if (strChar.Length == 0)
+                result = 0;
+            else if (position >= 0 && position < strChar.Length)
+                result = (int)strChar[position];
+            else
+                throw RuntimeException.InvalidArgumentValue();
+
+            return result;
+        }
+
+        public static string Символ(int code)
+        {
+            return new string(new char[1] { (char)code });
+        }
+
         public static int Найти(string haystack, string needle)
         {
             return haystack.IndexOf(needle, StringComparison.Ordinal) + 1;
@@ -1397,6 +1432,10 @@ namespace ScriptEngine.HostedScript
             return Знач(str).AsString().Trim();
         }
 
+        public Массив СтрРазделить(string inputString, string stringDelimiter, bool? includeEmpty = true)
+        {
+            return new Массив(_strop.StrSplit(inputString, stringDelimiter, includeEmpty));
+        }
 
 
         public static void Приостановить(int delay)

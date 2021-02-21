@@ -17,14 +17,13 @@ namespace ScriptEngine.HostedScript.Library
 
     public class functions : onesharp
     {
-        string ИмяМодуля;
+
+        public decimal МоментЗапуска;
 
         public functions(string _ИмяМодуля) {
             МоментЗапуска = ТекущаяУниверсальнаяДатаВМиллисекундах();
             ИмяМодуля = _ИмяМодуля;
         }
-
-        public decimal МоментЗапуска;
 
         public decimal ПолучитьИД()
         {
@@ -222,43 +221,8 @@ namespace ScriptEngine.HostedScript.Library
 
         public IValue Тест(IValue arg)
         {
-            var струк = Новый(arg) as Структура;
-
-            var k = Новый_Структура();
-
-            var ууу = ИмяЗначение("ааа", "ппп");
-
-            var k1 = Строка(k.Количество());
-
-            Сообщить(k1);
-            //Сообщить(ууу.Получить("Имя"));
-
-            //                var ттип1 = Тип("Структура");
-            //                var ттип2 = ТипЗнч(k._str);
-            //
-            //                Сообщить(ТипЗнч(ттип1));
-
-            //Console.WriteLine(123);
-
-            var b = СтруктуруВДвоичныеДанные(Новый(arg));
-
-            //Сообщить(b);
-
-            //foreach (var Элемент in ууу)
-            //{
-            //    Сообщить(Элемент.Ключ);
-            //}
-
-            var c = ДвоичныеДанныеВСтруктуру(b);
-
-            //var струк1 = Новый(c) as Структура;
-
-            if (струк == c)
-            {
-                Сообщить("ага!");
-            }
-
-            return c.Value;
+ 
+            return null;
 
         }
 

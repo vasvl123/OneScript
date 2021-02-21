@@ -1,15 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// /*----------------------------------------------------------
+// This Source Code Form is subject to the terms of the
+// Mozilla Public License, v.2.0. If a copy of the MPL
+// was not distributed with this file, You can obtain one
+// at http://mozilla.org/MPL/2.0/.
+// ----------------------------------------------------------*/
 
+using System;
+using System.Linq;
 using ScriptEngine;
 using ScriptEngine.HostedScript;
 using ScriptEngine.HostedScript.Library;
 
-namespace useyourmind
+namespace morphserver
 {
+
     public class ApplicationHost : IHostApplication
     {
         public string[] CommandLineArguments { get; set; } = new string[0];
@@ -35,19 +39,18 @@ namespace useyourmind
         }
     }
 
-    class Program
+    class MainClass
     {
-        static void Main(string[] args)
-        {
-            var host = new ApplicationHost();
-            var source = args[0];
-            host.CommandLineArguments = args.Skip(1).ToArray();
-            var Engine = new HostedScriptEngine();
-            Engine.Initialize();
-            //Engine.Loader.ReaderEncoding = Encoding.GetEncoding("utf-8");
-            var process = Engine.CreateProcess(host, Engine.Loader.FromFile(source));
-            process.Start();
-        }
 
+        public static void Main(string[] args)
+        {
+            var hostedScript = new HostedScriptEngine();
+            var app = new morphserver();
+            app._syscon = new SystemGlobalContext();
+            var host = new ApplicationHost();
+            host.CommandLineArguments = args.ToArray();
+            app._syscon.ApplicationHost = host;
+            app.Main();
+        }
     }
 }

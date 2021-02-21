@@ -29,7 +29,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         private MemoryStream data = new MemoryStream();
         private MemoryStream headers = new MemoryStream();
         private bool _readheaders = false;
-
+        private Int64 numberOfBytes;
 
         public TCPClient(TcpClient client)
         {
@@ -133,7 +133,7 @@ namespace ScriptEngine.HostedScript.Library.Net
                         for (n = 0;  n < ret; n++) {
                             if (m_Buffer[n] == 10)
                                 if (n > 3)
-                                    if (m_Buffer[n - 1] == 13 && m_Buffer[n - 2] == 10 && m_Buffer[n - 3] == 13)
+                                    if (m_Buffer[n - 1] == 13 && m_Buffer[n - 2] == 10 && m_Buffer[n - 3] == 13) // конец заголовка
                                     {
                                         headers.Write(m_Buffer, 0, n);
                                         _readheaders = false;
@@ -144,8 +144,21 @@ namespace ScriptEngine.HostedScript.Library.Net
                         status = "Заголовки";
                         System.Threading.Thread.Sleep(3);
                     }
+                    
+                    else if (numberOfBytes == 0 && data.Position == 0) // начало данных
+                    {
+                        numberOfBytes = BitConverter.ToInt64(m_Buffer, 0);
+                        n = 8;
+                    }
+
+                    if (numberOfBytes > 0) 
+                    {
+                        numberOfBytes -= ret - n;
+                    }
+
                     data.Write(m_Buffer, n, ret - n);
-                    if (stream.DataAvailable)
+
+                    if (stream.DataAvailable || numberOfBytes > 0)
                     {
                         status = "Занят";
                         m_Buffer = new byte[BUFFERSIZE];
@@ -273,7 +286,7 @@ namespace ScriptEngine.HostedScript.Library.Net
         /// </summary>
         /// <param name="data">ДвоичныеДанные которые нужно отправить.</param>
         [ContextMethod("ОтправитьДвоичныеДанныеАсинхронно", "SendBinaryDataAsync")]
-        public void SendBinaryDataAsync(BinaryDataContext data)
+        public void SendBinaryDataAsync(BinaryDataContext data, bool sendlen = true)
         {
             if (data.Buffer.Length == 0)
                 return;
@@ -282,6 +295,8 @@ namespace ScriptEngine.HostedScript.Library.Net
             {
                 var stream = _client.GetStream();
                 status = "Занят";
+                
+                if (sendlen) stream.Write(BitConverter.GetBytes((long)data.Buffer.Length), 0, 8); // сколько данных
                 stream.BeginWrite(data.Buffer, 0, data.Buffer.Length, new AsyncCallback(this.OnWriteComplete), null);
                 //stream.Flush();
             }

@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\useyourmind\bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\useyourmind\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="dataserver.cs" />
     <Compile Include="ConsoleHostImpl.cs" />
     <Compile Include="dbaccess.cs" />
     <Compile Include="Output.cs" />
