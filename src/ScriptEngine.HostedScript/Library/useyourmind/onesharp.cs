@@ -416,8 +416,13 @@ namespace ScriptEngine.HostedScript
 
         }
 
+        public static Список Новый_Список()
+        {
+            return new Список();
+        }
+
   
-    public class Структура : Список
+        public class Структура : Список
         {
             StructureImpl _val;
 
@@ -674,14 +679,19 @@ namespace ScriptEngine.HostedScript
                 return Вернуть(_val.Get(index));
             }
 
+            public void Установить(int index, object val)
+            {
+                _val.Set(index, Знач(val));
+            }
+
             public void Удалить(int index)
             {
                 _val.Remove(index);
             }
 
-            public void Вставить(int pos, object val)
+            public void Вставить(int index, object val)
             {
-                _val.Insert(pos, Знач(val));
+                _val.Insert(index, Знач(val));
             }
 
             public void Добавить(object val)
@@ -697,6 +707,22 @@ namespace ScriptEngine.HostedScript
                         null, Вернуть(item));
                 }
 
+            }
+
+            public override bool TrySetIndex(
+                SetIndexBinder binder, object[] indexes, object value)
+            {
+                int index = (int)indexes[0];
+                _val.Set(index, Знач(value));
+                return true;
+            }
+
+            public override bool TryGetIndex(
+                GetIndexBinder binder, object[] indexes, out object result)
+            {
+                int index = (int)indexes[0];
+                result = Вернуть(_val.Get(index));
+                return true;
             }
 
         }
@@ -1435,6 +1461,10 @@ namespace ScriptEngine.HostedScript
         public Массив СтрРазделить(string inputString, string stringDelimiter, bool? includeEmpty = true)
         {
             return new Массив(_strop.StrSplit(inputString, stringDelimiter, includeEmpty));
+        }
+
+        public int СтрНайти(string haystack, string needle, SearchDirection direction = SearchDirection.FromBegin, int startPos = 0, int occurance = 0) {
+            return _strop.StrFind(haystack, needle, direction = SearchDirection.FromBegin, startPos, occurance);
         }
 
 
