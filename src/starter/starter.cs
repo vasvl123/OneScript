@@ -150,7 +150,7 @@ namespace starter
                         if (структЗадача.Запущен == Ложь)
                         {
                             структЗадача.Запущен = Истина;
-                            ЗапуститьПроцесс("useyourmind.exe morphserver.os", ПортМ);
+                            ЗапуститьПроцесс("morphserver.exe", ПортМ);
                         }
                         else
                         {

@@ -167,14 +167,15 @@ namespace ScriptEngine.HostedScript
                 {
                     case "Число":
                         var n = v._Value.AsNumber();
-                        try
+                        if (Math.Truncate(n) == n)
                         {
-                            return Decimal.ToInt32(n);
+                            try
+                            {
+                                return Decimal.ToInt32(n);
+                            }
+                            catch { }
                         }
-                        catch //(OverflowException e)
-                        {
-                            return n;
-                        }
+                        return n;
                     case "Строка":
                         return v._Value.AsString();
                     case "Булево":
@@ -193,14 +194,15 @@ namespace ScriptEngine.HostedScript
                 {
                     case "Число":
                         var n = v.AsNumber();
-                        try
+                        if (Math.Truncate(n) == n)
                         {
-                            return Decimal.ToInt32(n);
+                            try
+                            {
+                                return Decimal.ToInt32(n);
+                            }
+                            catch { }
                         }
-                        catch //(OverflowException e)
-                        {
-                            return n;
-                        }
+                        return n;
                     case "Строка":
                         return v.AsString();
                     case "Булево":
@@ -1311,14 +1313,15 @@ namespace ScriptEngine.HostedScript
         public static object Число(object arg)
         {
             decimal n = Знач(arg).AsNumber();
-            try
+            if (Math.Truncate(n) == n)
             {
-                return Decimal.ToInt32(n);
+                try
+                {
+                    return Decimal.ToInt32(n);
+                }
+                catch { }
             }
-            catch //(OverflowException e)
-            {
-                return n;
-            }
+            return n;
         }
 
         public static bool Булево(object arg)

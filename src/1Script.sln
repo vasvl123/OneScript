@@ -73,6 +73,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "useyourmind", "useyourmind\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "morphserver", "morphserver\morphserver.csproj", "{9906C04D-E30B-429F-B393-09623E5DED5E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "showdata", "showdata\showdata.csproj", "{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -356,6 +358,18 @@ Global
 		{9906C04D-E30B-429F-B393-09623E5DED5E}.Release|x64.Build.0 = Release|Any CPU
 		{9906C04D-E30B-429F-B393-09623E5DED5E}.Release|x86.ActiveCfg = Release|Any CPU
 		{9906C04D-E30B-429F-B393-09623E5DED5E}.Release|x86.Build.0 = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|x64.Build.0 = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Debug|x86.Build.0 = Debug|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x64.ActiveCfg = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x64.Build.0 = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x86.ActiveCfg = Release|Any CPU
+		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

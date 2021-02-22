@@ -273,7 +273,19 @@ namespace ScriptEngine.HostedScript.Library.Net
             {
                 var stream = _client.GetStream();
                 stream.EndWrite(ar);
-                status = "Успех";
+
+                //const int BUF_SIZE = 1024;
+                int portion = Math.Min((int)(data.Length - data.Position), BUFFERSIZE);
+
+                if (portion == 0)
+                {
+                    status = "Успех";
+                    return;
+                }
+
+                byte[] Buffer = new byte[portion];
+                data.Read(Buffer, 0, portion);
+                stream.BeginWrite(Buffer, 0, portion, new AsyncCallback(this.OnWriteComplete), null);
             }
             catch
             {
@@ -286,18 +298,26 @@ namespace ScriptEngine.HostedScript.Library.Net
         /// </summary>
         /// <param name="data">ДвоичныеДанные которые нужно отправить.</param>
         [ContextMethod("ОтправитьДвоичныеДанныеАсинхронно", "SendBinaryDataAsync")]
-        public void SendBinaryDataAsync(BinaryDataContext data, bool sendlen = true)
+        public void SendBinaryDataAsync(BinaryDataContext _data, bool sendlen = true)
         {
-            if (data.Buffer.Length == 0)
+            data = new MemoryStream(_data.Buffer);
+            
+            //const int BUF_SIZE = 1024;
+            int portion = Math.Min((int)(data.Length - data.Position), BUFFERSIZE);
+
+            if (portion == 0)
                 return;
+
+            byte[] Buffer = new byte[portion];
+            data.Read(Buffer, 0, portion);
 
             try
             {
                 var stream = _client.GetStream();
                 status = "Занят";
                 
-                if (sendlen) stream.Write(BitConverter.GetBytes((long)data.Buffer.Length), 0, 8); // сколько данных
-                stream.BeginWrite(data.Buffer, 0, data.Buffer.Length, new AsyncCallback(this.OnWriteComplete), null);
+                if (sendlen) stream.Write(BitConverter.GetBytes((long)data.Length), 0, 8); // сколько данных
+                stream.BeginWrite(Buffer, 0, portion, new AsyncCallback(this.OnWriteComplete), null);
                 //stream.Flush();
             }
             catch
