@@ -10,6 +10,7 @@ using ScriptEngine.HostedScript.Library;
 using ScriptEngine.HostedScript.Library.Binary;
 using ScriptEngine.HostedScript.Library.Net;
 using ScriptEngine.HostedScript.Library.Hash;
+using ScriptEngine.HostedScript.Library.ValueList;
 
 
 namespace ScriptEngine.HostedScript
@@ -131,13 +132,31 @@ namespace ScriptEngine.HostedScript
 
         public class КлючИЗначение
         {
+            private readonly object _item;
             private readonly object _key;
             private readonly object _value;
 
-            public КлючИЗначение(object key, object value)
+            public object Impl
+            {
+                get
+                {
+                    return _value;
+                }
+            }
+
+            public КлючИЗначение(object key, object value, object item = null)
             {
                 _key = key;
                 _value = value;
+                _item = item;
+            }
+
+            public string Представление
+            {
+                get
+                {
+                    return (string)_key;
+                }
             }
 
             public object Ключ
@@ -641,6 +660,90 @@ namespace ScriptEngine.HostedScript
         public static Соответствие Новый_Соответствие()
         {
             return new Соответствие();
+        }
+
+
+
+        public class СписокЗначений : Список
+        {
+            ValueListImpl _val;
+
+            public ValueListImpl Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public СписокЗначений()
+            {
+                _vartype = "СписокЗначений";
+                _val = new ValueListImpl();
+                _Value = _val;
+            }
+
+            public СписокЗначений(IValue val)
+            {
+                _vartype = "СписокЗначений";
+                _val = val as ValueListImpl;
+                _Value = val;
+            }
+
+            public int Количество()
+            {
+                return _val.Count();
+            }
+
+            public КлючИЗначение Получить(int index)
+            {
+                var _item = _val.GetValue(Знач(index));
+                return new КлючИЗначение(_item.Presentation, _item.Value, _item);
+            }
+
+            public КлючИЗначение Добавить(object value, string presentation = null)
+            {
+                var _item = _val.Add(Знач(value), presentation);
+                return new КлючИЗначение(_item.Presentation, _item.Value, _item);
+            }
+
+            public КлючИЗначение Вставить(int index, object value, string presentation = null)
+            {
+
+                var _item = _val.Insert(index, Знач(value), presentation = null);
+                return new КлючИЗначение(_item.Presentation, _item.Value, _item);
+            }
+
+            public int Индекс(КлючИЗначение item)
+            {
+                return _val.IndexOf(item.Impl as ValueListItem);
+            }
+
+            public КлючИЗначение НайтиПоЗначению(object val) {
+                var _item = _val.FindByValue(Знач(val)) as ValueListItem;
+                return new КлючИЗначение(_item.Presentation, _item.Value, _item);
+            }
+
+            public void Очистить()
+            {
+                _val.Clear();
+            }
+
+            public override IEnumerator<КлючИЗначение> GetEnumerator()
+            {
+                foreach (var item in _val)
+                {
+                    yield return new КлючИЗначение(
+                        Вернуть(item.Presentation), Вернуть(item.Value));
+                }
+
+            }
+
+        }
+
+        public static СписокЗначений Новый_СписокЗначений()
+        {
+            return new СписокЗначений();
         }
 
 
@@ -1533,6 +1636,11 @@ namespace ScriptEngine.HostedScript
         public string РаскодироватьСтроку(string encodedString, EnumerationValue codeType, IValue encoding = null)
         {
             return _miscf.DecodeString(encodedString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
+        }
+
+        public string КодироватьСтроку(string sourceString, EnumerationValue codeType, IValue encoding = null)
+        {
+            return _miscf.EncodeString(sourceString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
         }
 
 
