@@ -1643,6 +1643,14 @@ namespace ScriptEngine.HostedScript
             return _miscf.EncodeString(sourceString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
         }
 
+        public void ОсвободитьОбъект(object obj)
+        {
+            var disposable = obj as IDisposable;
+            if (disposable != null)
+            {
+                disposable.Dispose();
+            }
+        }
 
         public onesharp ()
         {
