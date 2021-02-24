@@ -17,7 +17,7 @@ namespace ScriptEngine.HostedScript
 {
     public class onesharp
     {
-        public onesharp ЭтотОбъект { get { return this; }}
+        //public onesharp ЭтотОбъект { get { return this; }}
 
         public string ИмяМодуля;
 
@@ -393,16 +393,16 @@ namespace ScriptEngine.HostedScript
         public class Список : Перем, IEnumerable<КлючИЗначение>
         {
             class t_val: Dictionary<object, object> {}
-            t_val _val;
+            t_val _dic;
 
             public Список()
             {
-                _val = new t_val();    
+                _dic = new t_val();    
             }
 
             public virtual IEnumerator<КлючИЗначение> GetEnumerator()
             {
-                foreach (var item in _val)
+                foreach (var item in _dic)
                 {
                     yield return new КлючИЗначение(
                         item.Key, item.Value);
@@ -416,24 +416,24 @@ namespace ScriptEngine.HostedScript
 
             public bool Свойство(object key, out object value)
             {
-                return _val.TryGetValue(key, out value);
+                return _dic.TryGetValue(key, out value);
             }
 
             public object Получить(object key)
             {
                 object value = null;
-                _val.TryGetValue(key, out value);
+                _dic.TryGetValue(key, out value);
                 return value;
             }
 
             public void Вставить(object key, object value)
             {
-                _val.Add(key, value);
+                _dic.Add(key, value);
             }
 
             public void Удалить(object key)
             {
-                _val.Remove(key);
+                _dic.Remove(key);
             }
 
         }
@@ -453,6 +453,11 @@ namespace ScriptEngine.HostedScript
                 get
                 {
                     return _val;
+                }
+
+                set
+                {
+                    _val = value;
                 }
             }
 
@@ -533,7 +538,7 @@ namespace ScriptEngine.HostedScript
             public object Получить(string name)
             {
                 var v = Variable.Create(null, "");
-                if (_val.HasProperty(name, v)) return Новый(v.Value);
+                if (_val.HasProperty(name, v)) return Вернуть(v.Value);
                 return Неопределено;
             }
 
@@ -614,7 +619,7 @@ namespace ScriptEngine.HostedScript
                 return _val.Count();
             }
 
-            public object Получить(object key)
+            public new object Получить(object key)
             {
                 try
                 {
@@ -627,7 +632,7 @@ namespace ScriptEngine.HostedScript
 
             }
 
-            public void Вставить(object key, object val = null)
+            public new void Вставить(object key, object val = null)
             {
                 _val.Insert(Знач(key), Знач(val));
             }
@@ -641,7 +646,7 @@ namespace ScriptEngine.HostedScript
                 _val.Delete(Знач(key));
             }
 
-            public void Удалить(object key)
+            public new void Удалить(object key)
             {
                 _val.Delete(Знач(key));
             }
@@ -655,6 +660,14 @@ namespace ScriptEngine.HostedScript
                 }
 
             }
+
+            public override bool TryGetIndex(GetIndexBinder binder, object[] indexes, out object result)
+            {
+                string index = indexes[0] as string;
+                result = Вернуть(_val.Retrieve(Знач(index)));
+                return true;
+            }
+
 
         }
 
@@ -1227,6 +1240,63 @@ namespace ScriptEngine.HostedScript
         }
 
 
+        public class ЧтениеТекста : Перем
+        {
+            TextReadImpl _val;
+
+            public TextReadImpl Impl
+            {
+                get
+                {
+                    return _val;
+                }
+            }
+
+            public ЧтениеТекста(IValue val)
+            {
+                _vartype = "ЧтениеТекста";
+                _val = val as TextReadImpl;
+                _Value = val;
+            }
+
+            public object ПрочитатьСтроку()
+            {
+                return Вернуть(_val.ReadLine()) as string;
+            }
+            public void Закрыть() => _val.Close();
+
+        }
+
+        public static ЧтениеТекста Новый_ЧтениеТекста(string input, string encoding = null)
+        {
+            return new ЧтениеТекста(TextReadImpl.Constructor(Знач(input), Знач(encoding)));
+        }
+
+        
+        public class Рефлектор : Перем
+        {
+ 
+            public Рефлектор()
+            {
+                _vartype = "Рефлектор";
+            }
+
+            public bool МетодСуществует(object obj, string metodname) {
+                return false;
+            }
+            public object ВызватьМетод(object obj, string metodname, Массив par)
+            {
+                return null;
+            }
+
+        }
+
+        public static Рефлектор Новый_Рефлектор()
+        {
+            return new Рефлектор();
+        }
+
+
         public enum ХешФункция
         {
             MD5,
@@ -1252,7 +1322,7 @@ namespace ScriptEngine.HostedScript
         public class ХешированиеДанных : Перем
         {
             HashImpl _val;
-            HashFunctionEnum _hfunc;
+            //HashFunctionEnum _hfunc;
 
             public HashImpl Impl
             {
