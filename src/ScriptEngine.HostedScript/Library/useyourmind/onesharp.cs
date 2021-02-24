@@ -17,6 +17,7 @@ namespace ScriptEngine.HostedScript
 {
     public class onesharp
     {
+        public onesharp ЭтотОбъект { get { return this; }}
 
         public string ИмяМодуля;
 
@@ -784,6 +785,11 @@ namespace ScriptEngine.HostedScript
                 return Вернуть(_val.Get(index));
             }
 
+            public object Найти(object what)
+            {
+                return Вернуть(_val.Find(Знач(what)));
+            }
+
             public void Установить(int index, object val)
             {
                 _val.Set(index, Знач(val));
@@ -802,6 +808,11 @@ namespace ScriptEngine.HostedScript
             public void Добавить(object val)
             {
                 _val.Add(Знач(val));
+            }
+
+            public void Очистить()
+            {
+                _val.Clear();
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
@@ -1200,7 +1211,14 @@ namespace ScriptEngine.HostedScript
             }
 
             public void Записать(string path, IValue encoding = null, string lineSeparator = null) => _val.Write(path, encoding, lineSeparator);
-
+            public void УстановитьТекст(string newText) => _val.SetText(newText);
+            public string ПолучитьТекст() => _val.GetText();
+            public string ПолучитьСтроку(int lineNumber) => _val.GetLine(lineNumber);
+            public void ЗаменитьСтроку(int number, string newLine) => _val.ReplaceLine(number, newLine);
+            public void Очистить() => _val.Clear();
+            public int КоличествоСтрок() => _val.LineCount();
+            public void ДобавитьСтроку(string line) => _val.AddLine(line);
+ 
         }
 
         public static ТекстовыйДокумент Новый_ТекстовыйДокумент()
@@ -1359,8 +1377,6 @@ namespace ScriptEngine.HostedScript
         }
 
         public string ОписаниеОшибки(Exception e) { return ИмяМодуля + " ошибка!\n" + e.Message + "\n" + e.StackTrace; }
-
-        public string ВызватьИсключение(string exept) { return exept; }
 
 
         public string ТекущийКаталог()
@@ -1573,6 +1589,9 @@ namespace ScriptEngine.HostedScript
             return _strop.StrFind(haystack, needle, direction = SearchDirection.FromBegin, startPos, occurance);
         }
 
+        public static void ВызватьИсключение(string msg) {
+            throw new SystemException(msg);
+        }
 
         public static void Приостановить(int delay)
         {
