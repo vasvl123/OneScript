@@ -13,11 +13,11 @@ namespace showdata
         public string Код { get { return (string)Получить("Код"); } set { Вставить("Код", value); } }
         public string Имя { get { return (string)Получить("Имя"); } set { Вставить("Имя", value); } }
         public object Значение { get { return Получить("Значение"); } set { Вставить("Значение", value); } }
-        public ТипУзел Атрибут { get { return _ТипУзел(Получить("Атрибут")); } set { Вставить("Атрибут", value); } }
-        public ТипУзел Дочерний { get { return _ТипУзел(Получить("Дочерний")); } set { Вставить("Дочерний", value); } }
-        public ТипУзел Соседний { get { return _ТипУзел(Получить("Соседний")); } set { Вставить("Соседний", value); } }
-        public ТипУзел Старший { get { return _ТипУзел(Получить("Старший")); } set { Вставить("Старший", value); } }
-        public ТипУзел Родитель { get { return _ТипУзел(Получить("Родитель")); } set { Вставить("Родитель", value); } }
+        public ТипУзел Атрибут { get { return _ТипУзел(Получить("Атрибут")); } set { Вставить("Атрибут", new onesharp.Структура(value.Impl)); } }
+        public ТипУзел Дочерний { get { return _ТипУзел(Получить("Дочерний")); } set { Вставить("Дочерний", new onesharp.Структура(value.Impl)); } }
+        public ТипУзел Соседний { get { return _ТипУзел(Получить("Соседний")); } set { Вставить("Соседний", new onesharp.Структура(value.Impl)); } }
+        public ТипУзел Старший { get { return _ТипУзел(Получить("Старший")); } set { Вставить("Старший", new onesharp.Структура(value.Impl)); } }
+        public ТипУзел Родитель { get { return _ТипУзел(Получить("Родитель")); } set { Вставить("Родитель", new onesharp.Структура(value.Impl)); } }
         public dynamic п { get { return Получить("п") as onesharp.Структура; } set { Вставить("п", value); } }
         public dynamic д { get { return Получить("д") as onesharp.Структура; } set { Вставить("д", value); } }
 
