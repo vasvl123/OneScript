@@ -49,7 +49,8 @@ namespace showdata
             var app = new showdata();
             app._syscon = new SystemGlobalContext();
             var host = new ApplicationHost();
-            host.CommandLineArguments = args.ToArray();
+            string[] arg1 = { "8885" };
+            host.CommandLineArguments = arg1.ToArray();
             app._syscon.ApplicationHost = host;
             app.Main();
         }

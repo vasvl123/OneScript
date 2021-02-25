@@ -202,6 +202,8 @@ namespace ScriptEngine.HostedScript
                         return v._Value.AsBoolean();
                     case "Дата":
                         return v._Value.AsDate();
+                    case "Неопределено":
+                        return null;
                     default:
                         return arg;
                 }
@@ -428,12 +430,18 @@ namespace ScriptEngine.HostedScript
 
             public void Вставить(object key, object value)
             {
+                _dic.Remove(key);
                 _dic.Add(key, value);
             }
 
             public void Удалить(object key)
             {
                 _dic.Remove(key);
+            }
+
+            public int Количество()
+            {
+                return _dic.Count();
             }
 
         }
@@ -649,6 +657,11 @@ namespace ScriptEngine.HostedScript
             public new void Удалить(object key)
             {
                 _val.Delete(Знач(key));
+            }
+
+            public void Очистить()
+            {
+                _val.Clear();
             }
 
             public override IEnumerator<КлючИЗначение> GetEnumerator()
