@@ -434,6 +434,12 @@ namespace ScriptEngine.HostedScript
                 _dic.Add(key, value);
             }
 
+            public void Добавить(object key)
+            {
+                _dic.Remove(key);
+                _dic.Add(key, null);
+            }
+
             public void Удалить(object key)
             {
                 _dic.Remove(key);
