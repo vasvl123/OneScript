@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// MIT License
+// Copyright (c) 2020 vasvl123
+// https://github.com/vasvl123/useyourmind
+
+using System;
+using ScriptEngine.HostedScript.Library;
 
 namespace showdata.lib
 {
-    class Функции
+    class Функции : functions
     {
+        public Функции() : base("Функции") { }
 
-        // MIT License
-        // Copyright (c) 2020 vasvl123
-        // https://github.com/vasvl123/useyourmind
-
-
-        object УзелСвойство(Узел, Свойство)
+        public object УзелСвойство(Структура Узел, string Свойство)
         {
-            УзелСвойство = Неопределено;
+            Перем УзелСвойство = null;
             if (!(Узел == Неопределено))
             {
-                Узел.Свойство(Свойство, УзелСвойство);
+                Узел.Свойство(Свойство, ref УзелСвойство);
             }
-            return УзелСвойство;
+            return Вернуть(УзелСвойство);
         } // УзелСвойство(Узел)
 
 
-        object НоваяВкладка(Данные, Параметры)
+        object НоваяВкладка(pagedata Данные, dynamic Параметры)
         {
             Параметры.Вставить("cmd", "newtab");
             Данные.Процесс.НоваяЗадача(Параметры, "Служебный");
@@ -33,10 +30,10 @@ namespace showdata.lib
         } // НоваяВкладка()
 
 
-        object НоваяБаза(Данные, Параметры)
+        object НоваяБаза(pagedata Данные, dynamic Параметры)
         {
-            БазаДанных = Параметры.БазаДанных;
-            Запрос = Новый Структура("Данные, БазаДанных, cmd", Данные, БазаДанных, "НоваяБаза");
+            var БазаДанных = Параметры.БазаДанных;
+            var Запрос = Новый_Структура("Данные, БазаДанных, cmd", Данные, БазаДанных, "НоваяБаза");
             Данные.Процесс.НоваяЗадача(Запрос, "Служебный");
             return Неопределено;
         }

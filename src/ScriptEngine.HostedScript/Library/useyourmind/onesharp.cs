@@ -793,6 +793,20 @@ namespace ScriptEngine.HostedScript
                 }
             }
 
+            public object[] Arr
+            {
+                get
+                {
+                    var _values = new List<object>();
+                    foreach (var item in _val)
+                    {
+                        _values.Add(item);
+                    }
+
+                    return _values.ToArray();
+                }
+            }
+
             public Массив()
             {
                 _vartype = "Массив";
@@ -1301,11 +1315,12 @@ namespace ScriptEngine.HostedScript
             }
 
             public bool МетодСуществует(object obj, string metodname) {
-                return false;
+                return (!(obj.GetType().GetMethod(metodname) is null));
             }
             public object ВызватьМетод(object obj, string metodname, Массив par)
             {
-                return null;
+                var m = obj.GetType().GetMethod(metodname);
+                return m.Invoke(obj, par.Arr);
             }
 
         }
@@ -1672,6 +1687,11 @@ namespace ScriptEngine.HostedScript
         public Массив СтрРазделить(string inputString, string stringDelimiter, bool? includeEmpty = true)
         {
             return new Массив(_strop.StrSplit(inputString, stringDelimiter, includeEmpty));
+        }
+
+        public string СтрСоединить(Массив input, string delimiter = null)
+        {
+            return _strop.StrConcat(input.Impl, delimiter);
         }
 
         public int СтрНайти(string haystack, string needle, SearchDirection direction = SearchDirection.FromBegin, int startPos = 0, int occurance = 0) {
