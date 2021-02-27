@@ -373,7 +373,7 @@ namespace ScriptEngine.HostedScript
             {
                 if (other is null) return (_Value is null);
                 var v = Вернуть(_Value);
-                if (v is Перем) return (v as Перем)._Value.Equals(other);
+                if (v is Перем) return _Value.Equals((other is Перем) ? (other as Перем)._Value : other);
                 return v.Equals(other);
             }
 
