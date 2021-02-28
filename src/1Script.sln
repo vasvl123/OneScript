@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "morphserver", "morphserver\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "showdata", "showdata\showdata.csproj", "{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "onesharp", "onesharp\onesharp.csproj", "{A4242A88-B27F-47D5-A2E0-3A88F007A866}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -370,6 +372,18 @@ Global
 		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x64.Build.0 = Release|Any CPU
 		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x86.ActiveCfg = Release|Any CPU
 		{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}.Release|x86.Build.0 = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|x64.Build.0 = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4242A88-B27F-47D5-A2E0-3A88F007A866}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

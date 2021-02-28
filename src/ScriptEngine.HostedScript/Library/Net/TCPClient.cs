@@ -273,19 +273,7 @@ namespace ScriptEngine.HostedScript.Library.Net
             {
                 var stream = _client.GetStream();
                 stream.EndWrite(ar);
-
-                //const int BUF_SIZE = 1024;
-                int portion = Math.Min((int)(data.Length - data.Position), BUFFERSIZE);
-
-                if (portion == 0)
-                {
-                    status = "Успех";
-                    return;
-                }
-
-                byte[] Buffer = new byte[portion];
-                data.Read(Buffer, 0, portion);
-                stream.BeginWrite(Buffer, 0, portion, new AsyncCallback(this.OnWriteComplete), null);
+                status = "Успех";
             }
             catch
             {
@@ -300,24 +288,21 @@ namespace ScriptEngine.HostedScript.Library.Net
         [ContextMethod("ОтправитьДвоичныеДанныеАсинхронно", "SendBinaryDataAsync")]
         public void SendBinaryDataAsync(BinaryDataContext _data, bool sendlen = true)
         {
-            data = new MemoryStream(_data.Buffer);
-            
-            //const int BUF_SIZE = 1024;
-            int portion = Math.Min((int)(data.Length - data.Position), BUFFERSIZE);
-
-            if (portion == 0)
-                return;
-
-            byte[] Buffer = new byte[portion];
-            data.Read(Buffer, 0, portion);
-
             try
             {
+                var buf = _data.Buffer;
+                var len = buf.Length;
+                if (len == 0)
+                {
+                    status = "Успех";
+                    return;
+                }
+
                 var stream = _client.GetStream();
                 status = "Занят";
                 
-                if (sendlen) stream.Write(BitConverter.GetBytes((long)data.Length), 0, 8); // сколько данных
-                stream.BeginWrite(Buffer, 0, portion, new AsyncCallback(this.OnWriteComplete), null);
+                if (sendlen) stream.Write(BitConverter.GetBytes((long)len), 0, 8); // сколько данных
+                stream.BeginWrite(buf, 0, len, new AsyncCallback(this.OnWriteComplete), null);
                 //stream.Flush();
             }
             catch

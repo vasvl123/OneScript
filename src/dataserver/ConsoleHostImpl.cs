@@ -11,7 +11,7 @@ using ScriptEngine.HostedScript.Library;
 
 namespace dataserver
 {
-    static class ConsoleHostImpl
+    public static class ConsoleHostImpl
     {
         public static void Echo(string text, MessageStatusEnum status = MessageStatusEnum.Ordinary)
         {

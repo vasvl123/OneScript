@@ -6,16 +6,27 @@ at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 
 using System;
-using ScriptEngine;
-using ScriptEngine.HostedScript.Library;
 
-namespace morphserver
+
+namespace onesharp
 {
+
+    public enum СтатусСообщения
+    {
+        БезСтатуса,
+        Важное,
+        Внимание,
+        Информация,
+        Обычное,
+        ОченьВажное
+    }
+
+
     static class ConsoleHostImpl
     {
-        public static void Echo(string text, MessageStatusEnum status = MessageStatusEnum.Ordinary)
+        public static void Echo(string text, СтатусСообщения status = СтатусСообщения.Обычное)
         {
-            if (status == MessageStatusEnum.Ordinary)
+            if (status == СтатусСообщения.Обычное)
                 Output.WriteLine(text);
             else
             {
@@ -24,14 +35,14 @@ namespace morphserver
 
                 switch (status)
                 {
-                    case MessageStatusEnum.Information:
+                    case СтатусСообщения.Информация:
                         newColor = ConsoleColor.Green;
                         break;
-                    case MessageStatusEnum.Attention:
+                    case СтатусСообщения.Внимание:
                         newColor = ConsoleColor.Yellow;
                         break;
-                    case MessageStatusEnum.Important:
-                    case MessageStatusEnum.VeryImportant:
+                    case СтатусСообщения.Важное:
+                    case СтатусСообщения.ОченьВажное:
                         newColor = ConsoleColor.Red;
                         break;
                     default:

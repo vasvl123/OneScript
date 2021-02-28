@@ -29,7 +29,7 @@ namespace showdata.lib
         }
 
 
-        string НоваяФорма(string Имя)
+        public string НоваяФорма(string Имя)
         {
             var ткст = @"
 Форма.
@@ -66,7 +66,7 @@ namespace showdata.lib
         }
 
 
-        string Предмет_Свойства(pagedata Данные, dynamic оУзел)
+        public string Предмет_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -77,7 +77,7 @@ namespace showdata.lib
         }
 
 
-        string Комната_Свойства(pagedata Данные, dynamic оУзел)
+        public string Комната_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -90,7 +90,7 @@ namespace showdata.lib
         }
 
 
-        string Кнопка_Свойства(pagedata Данные, dynamic оУзел)
+        public string Кнопка_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -103,7 +103,7 @@ namespace showdata.lib
         }
 
 
-        string Надпись_Свойства(pagedata Данные, dynamic оУзел)
+        public string Надпись_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -114,7 +114,7 @@ namespace showdata.lib
         }
 
 
-        string Задача_Свойства(pagedata Данные, dynamic оУзел)
+        public string Задача_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -147,7 +147,7 @@ namespace showdata.lib
 
 
         // Выполнить
-        string Выполнить_Свойства(pagedata Данные, dynamic оУзел)
+        public string Выполнить_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -159,7 +159,7 @@ namespace showdata.lib
             return ткст;
         }
 
-        void Выполнить_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void Выполнить_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
             var Инициализация = (Изменения.Получить(Свойства.Родитель) == Истина);
             if (Инициализация || Изменения.Получить(Свойства.д.Условие) == Истина)
@@ -181,7 +181,7 @@ namespace showdata.lib
         }
 
 
-        string ИсточникДанных_Свойства(pagedata Данные, dynamic оУзел)
+        public string ИсточникДанных_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -199,7 +199,7 @@ namespace showdata.lib
             return ткст;
         }
 
-        void ИсточникДанных_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void ИсточникДанных_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
             var Инициализация = (Изменения.Получить(Свойства.Родитель) == Истина);
             var НовыйЗапрос = Инициализация || (Изменения.Получить(Свойства.д.ЗапросДанных.д.БазаДанных) == Истина);
@@ -268,7 +268,7 @@ namespace showdata.lib
 
         }
 
-        string ПанельДанных_Кнопка(string Начало, string Позиция)
+        public string ПанельДанных_Кнопка(string Начало, string Позиция)
         {
             return @"
      * button  class= btn btn - light btn - sm А = ПриНажатии    type = button role = pos    pos = " + Позиция + @"
@@ -276,7 +276,7 @@ namespace showdata.lib
         } ///
 
         // Панель данных
-        string ПанельДанных_Свойства(pagedata Данные, dynamic оУзел)
+        public string ПанельДанных_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @" 
 События
@@ -298,7 +298,7 @@ namespace showdata.lib
             return ткст;
         }
 
-        void ПанельДанных_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void ПанельДанных_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
 
             var ИсточникДанных = Данные.ЗначениеСвойства(Свойства.д.ИсточникДанных);
@@ -364,7 +364,7 @@ namespace showdata.lib
 
         // Таблица
 
-        string Таблица_Свойства(pagedata Данные, dynamic оУзел)
+        public string Таблица_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -376,7 +376,7 @@ namespace showdata.lib
             return ткст;
         }
 
-        void Таблица_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void Таблица_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
 
             var Инициализация = (Изменения.Получить(Свойства.Родитель) == Истина);
@@ -452,7 +452,7 @@ namespace showdata.lib
         }
 
         // СтрокаТаблицы
-        string СтрокаТаблицы_Свойства(pagedata Данные, dynamic оУзел)
+        public string СтрокаТаблицы_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -462,7 +462,7 @@ namespace showdata.lib
             return ткст;
         }
 
-        void СтрокаТаблицы_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void СтрокаТаблицы_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
 
             var Инициализация = (Изменения.Получить(Свойства.Родитель) == Истина);
@@ -510,7 +510,7 @@ namespace showdata.lib
         }
 
 
-        string Загрузить_Свойства(pagedata Данные, dynamic оУзел)
+        public string Загрузить_Свойства(pagedata Данные, dynamic оУзел)
         {
             var ткст = @"        
 События
@@ -521,7 +521,7 @@ namespace showdata.lib
         }
 
 
-        void Загрузить_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
+        public void Загрузить_Модель(pagedata Данные, dynamic Свойства, dynamic Изменения)
         {
 
             if (Изменения.Получить(Свойства.д.События) == Истина)

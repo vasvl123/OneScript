@@ -402,6 +402,20 @@ namespace ScriptEngine.HostedScript
                 _dic = new t_val();    
             }
 
+            public object[] Arr
+            {
+                get
+                {
+                    var _values = new List<object>();
+                    foreach (var item in _dic)
+                    {
+                        _values.Add(item.Key);
+                    }
+
+                    return _values.ToArray();
+                }
+            }
+
             public virtual IEnumerator<КлючИЗначение> GetEnumerator()
             {
                 foreach (var item in _dic)
@@ -423,6 +437,7 @@ namespace ScriptEngine.HostedScript
 
             public object Получить(object key)
             {
+                if (key is null) return null;
                 object value = null;
                 _dic.TryGetValue(key, out value);
                 return value;
@@ -523,7 +538,7 @@ namespace ScriptEngine.HostedScript
                 return true;
             }
 
-            public int Количество()
+            public new int Количество()
             {
                 return _val.Count();
             }
@@ -628,7 +643,7 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
-            public int Количество()
+            public new int Количество()
             {
                 return _val.Count();
             }
@@ -723,7 +738,7 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
-            public int Количество()
+            public new int Количество()
             {
                 return _val.Count();
             }
@@ -793,20 +808,6 @@ namespace ScriptEngine.HostedScript
                 }
             }
 
-            public object[] Arr
-            {
-                get
-                {
-                    var _values = new List<object>();
-                    foreach (var item in _val)
-                    {
-                        _values.Add(item);
-                    }
-
-                    return _values.ToArray();
-                }
-            }
-
             public Массив()
             {
                 _vartype = "Массив";
@@ -821,7 +822,7 @@ namespace ScriptEngine.HostedScript
                 _Value = val;
             }
 
-            public int Количество()
+            public new int Количество()
             {
                 return _val.Count();
             }
@@ -851,7 +852,7 @@ namespace ScriptEngine.HostedScript
                 _val.Insert(index, Знач(val));
             }
 
-            public void Добавить(object val)
+            public new void Добавить(object val)
             {
                 _val.Add(Знач(val));
             }
@@ -1317,7 +1318,7 @@ namespace ScriptEngine.HostedScript
             public bool МетодСуществует(object obj, string metodname) {
                 return (!(obj.GetType().GetMethod(metodname) is null));
             }
-            public object ВызватьМетод(object obj, string metodname, Массив par)
+            public object ВызватьМетод(object obj, string metodname, Список par)
             {
                 var m = obj.GetType().GetMethod(metodname);
                 return m.Invoke(obj, par.Arr);

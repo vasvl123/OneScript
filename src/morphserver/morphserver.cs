@@ -6,16 +6,14 @@
 // ----------------------------------------------------------*/
 
 using System;
-using ScriptEngine.HostedScript.Library;
+using onesharp;
 
 namespace morphserver
 {
-    class morphserver : functions
+    class morphserver : onesharp
     {
-        public morphserver() : base("morphserver")
-        {
-        }
 
+        public string[] АргументыКоманднойСтроки;
         //Перем Хост;
         int Порт;
         bool ОстановитьСервер;
@@ -28,7 +26,7 @@ namespace morphserver
         
         Массив МассивИзСтроки(string стр)
         {
-            var м = Новый_Массив();
+            var м = Массив.Новый();
             var дстр = СтрДлина(стр);
             for (int н = 1; н <= дстр; н++) {
                 м.Добавить(КодСимвола(Сред(стр, н, 1)));
