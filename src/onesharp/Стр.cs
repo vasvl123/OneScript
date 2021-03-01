@@ -10,11 +10,12 @@ using System.Linq;
 
 namespace onesharp
 {
-    public class Стр
+    public static class Стр
     {
 
-        public Стр()
+        public static int Длина(string str)
         {
+            return str.Length;
         }
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace onesharp
         /// </summary>
         /// <param name="inputString">Строка, начало которой проверяется на совпадение с подстрокой поиска.</param>
         /// <param name="searchString">Строка, содержащая предполагаемое начало строки. В случае если переданное значение является пустой строкой генерируется исключительная ситуация.</param>
-        public bool НачинаетсяС(string inputString, string searchString)
+        public static bool НачинаетсяС(string inputString, string searchString)
         {
             bool result = false;
 
@@ -43,7 +44,7 @@ namespace onesharp
         /// </summary>
         /// <param name="inputString">Строка, окончание которой проверяется на совпадение с подстрокой поиска.</param>
         /// <param name="searchString">Строка, содержащая предполагаемое окончание строки. В случае если переданное значение является пустой строкой генерируется исключительная ситуация.</param>
-        public bool ЗаканчиваетсяНа(string inputString, string searchString)
+        public static bool ЗаканчиваетсяНа(string inputString, string searchString)
         {
             bool result = false;
 
@@ -65,7 +66,7 @@ namespace onesharp
         /// <param name="inputString">Разделяемая строка.</param>
         /// <param name="stringDelimiter">Строка символов, каждый из которых является индивидуальным разделителем.</param>
         /// <param name="includeEmpty">Указывает необходимость включать в результат пустые строки, которые могут образоваться в результате разделения исходной строки. Значение по умолчанию: Истина. </param>
-        public Массив Разделить(string inputString, string stringDelimiter, bool? includeEmpty = true)
+        public static string[] Разделить(string inputString, string stringDelimiter, bool? includeEmpty = true)
         {
             string[] arrParsed;
             if (includeEmpty == null)
@@ -79,7 +80,7 @@ namespace onesharp
             {
                 arrParsed = (bool)includeEmpty ? new string[] { string.Empty } : new string[0];
             }
-            return new Массив(arrParsed.Select(x => x));
+            return arrParsed;
         }
 
         /// <summary>
@@ -87,10 +88,15 @@ namespace onesharp
         /// </summary>
         /// <param name="input">Массив - соединяемые строки</param>
         /// <param name="delimiter">Разделитель. Если не указан, строки объединяются слитно</param>
-        public string Соединить(Массив input, string delimiter = null)
+        public static string Соединить(Массив input, string delimiter = null)
         {
             var strings = input.Select(x => x);
 
+            return String.Join(delimiter, strings);
+        }
+
+        public static string Соединить(string[] strings, string delimiter = null)
+        {
             return String.Join(delimiter, strings);
         }
 
@@ -100,7 +106,7 @@ namespace onesharp
         /// <param name="first"></param>
         /// <param name="second"></param>
         /// <returns>-1 первая строка больше, 1 - вторая строка больше. 0 - строки равны</returns>
-        public int Сравнить(string first, string second)
+        public static int Сравнить(string first, string second)
         {
             return String.Compare(first, second, true);
         }
@@ -114,7 +120,7 @@ namespace onesharp
         /// <param name="startPos">Начальная позиция, с которой начинать поиск</param>
         /// <param name="occurance">Указывает номер вхождения искомой подстроки в исходной строке</param>
         /// <returns>Позицию искомой строки в исходной строке. Возвращает 0, если подстрока не найдена.</returns>
-        public int Найти(string haystack, string needle, НаправлениеПоиска direction = НаправлениеПоиска.СНачала, int startPos = 0, int occurance = 0)
+        public static int Найти(string haystack, string needle, НаправлениеПоиска direction = НаправлениеПоиска.СНачала, int startPos = 0, int occurance = 0)
         {
             int len = haystack.Length;
             if (len == 0 || needle.Length == 0)
@@ -174,7 +180,7 @@ namespace onesharp
                 return 0;
         }
 
-        public string Шаблон(string[] arguments)
+        public static string Шаблон(string[] arguments)
         {
             var srcFormat = arguments[0];
             if (srcFormat == String.Empty)

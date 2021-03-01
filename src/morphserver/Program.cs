@@ -7,9 +7,8 @@
 
 using System;
 using System.Linq;
-using onesharp;
 
-namespace morphserver
+namespace onesharp
 {
 
     class MainClass

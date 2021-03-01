@@ -6,11 +6,10 @@
 // ----------------------------------------------------------*/
 
 using System;
-using ScriptEngine.HostedScript.Library;
 
-namespace morphserver
+namespace onesharp
 {
-    class treedb : functions
+    class treedb : Onesharp
     {
 
         string ИмяФайлаДанных;
@@ -18,8 +17,8 @@ namespace morphserver
 
         Массив МассивИзСтроки(string стр)
         {
-            var м = Новый_Массив();
-            var дстр = СтрДлина(стр);
+            var м = Массив.Новый();
+            var дстр = Стр.Длина(стр);
             for (int н = 1; н <= дстр; н++)
             {
                 м.Добавить(КодСимвола(Сред(стр, н, 1)));

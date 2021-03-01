@@ -23,6 +23,12 @@ namespace onesharp
             _values = new List<object>(values);
         }
 
+        public object this [int index] {
+            get { return Получить(index); }
+            set { Вставить(index, value); }
+        }
+
+
         #region ICollectionContext Members
         
         public int Количество()

@@ -46,8 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\onesharp\onesharp.csproj">
-      <Project>{a4242a88-b27f-47d5-a2e0-3a88f007a866}</Project>
-      <Name>onesharp</Name>
+      <Project>{D8094841-0114-44ED-8137-D38F8DA889C1}</Project>
+      <Name>Onesharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -64,7 +64,7 @@ namespace onesharp
 
         public static void ShowExceptionInfo(Exception exc)
         {
-                Echo(exc.Message);
+            Echo(exc.Message);
         }
 
         public static bool InputString(out string result, int maxLen)
