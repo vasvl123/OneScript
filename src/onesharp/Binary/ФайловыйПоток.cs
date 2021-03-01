@@ -9,37 +9,48 @@ using System.IO;
 
 namespace onesharp.Binary
 {
-    public interface IStreamWrapper
-    {
-        Stream GetUnderlyingStream();
-
-        bool IsReadOnly { get; }
-    }
-    
     /// <summary>
     /// 
-    /// Представляет собой поток данных, который можно последовательно читать и/или в который можно последовательно писать. 
-    /// Экземпляры объектов данного типа можно получить с помощью различных методов других объектов.
+    /// Специализированная версия объекта Поток для работы данными, расположенными в файле на диске. Предоставляет возможность чтения из потока, записи в поток и изменения текущей позиции. 
+    /// По умолчанию, все операции с файловым потоком являются буферизированными, размер буфера по умолчанию - 8 КБ.
+    /// Размер буфера можно изменить, в том числе - полностью отключить буферизацию при вызове конструктора. 
+    /// Следует учитывать, что помимо буферизации существует кэширование чтения и записи файлов в операционной системе, на которое невозможно повлиять программно.
     /// </summary>
-    public class Поток : IDisposable, IStreamWrapper
+    public class ФайловыйПоток : IStreamWrapper, IDisposable
     {
-        private readonly Stream _underlyingStream;
-        private readonly bool _isReadOnly;
 
+        private readonly FileStream _underlyingStream;
         private readonly GenericStreamImpl _commonImpl;
 
-        public Поток(Stream underlyingStream)
+        private FileShare FileShareForAccess(FileAccessEnum access)
         {
-            _underlyingStream = underlyingStream;
-            _commonImpl = new GenericStreamImpl(_underlyingStream);
-            _isReadOnly = false;
+            return access == FileAccessEnum.Read ? FileShare.ReadWrite : FileShare.Read;
         }
 
-        public Поток(Stream underlyingStream, bool readOnly)
+        public ФайловыйПоток(string filename, FileOpenModeEnum openMode, FileAccessEnum access, int bufferSize = 0)
         {
-            _underlyingStream = underlyingStream;
+            ИмяФайла = filename;
+
+            if (bufferSize == 0)
+                _underlyingStream = new FileStream(filename,
+                    МенеджерФайловыхПотоков.ConvertFileOpenModeToCLR(openMode),
+                    МенеджерФайловыхПотоков.ConvertFileAccessToCLR(access),
+                    FileShareForAccess(access));
+            else
+                _underlyingStream = new FileStream(filename,
+                    МенеджерФайловыхПотоков.ConvertFileOpenModeToCLR(openMode),
+                    МенеджерФайловыхПотоков.ConvertFileAccessToCLR(access),
+                    FileShareForAccess(access),
+                    bufferSize);
+
             _commonImpl = new GenericStreamImpl(_underlyingStream);
-            _isReadOnly = readOnly;
+        }
+
+        public ФайловыйПоток(string fileName, FileStream openedStream)
+        {
+            ИмяФайла = fileName;
+            _underlyingStream = openedStream;
+            _commonImpl = new GenericStreamImpl(_underlyingStream);
         }
 
         public bool IsReadOnly => !ДоступнаЗапись;
@@ -49,7 +60,7 @@ namespace onesharp.Binary
         /// Признак доступности записи в поток.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        public bool ДоступнаЗапись => !_isReadOnly && _underlyingStream.CanWrite;
+        public bool ДоступнаЗапись => _underlyingStream.CanWrite;
 
         /// <summary>
         /// 
@@ -64,8 +75,12 @@ namespace onesharp.Binary
         /// Признак доступности чтения из потока.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        public bool ДоступноЧтение => _underlyingStream.CanRead;
-        
+       public bool ДоступноЧтение => _underlyingStream.CanRead;
+
+        /// <summary>
+        /// Содержит полное имя файла, включая путь
+        /// </summary>
+        public string ИмяФайла { get; }
 
         /// <summary>
         /// 
@@ -93,7 +108,7 @@ namespace onesharp.Binary
         /// <param name="number">
         /// Количество байт, которые требуется записать. </param>
         ///
-        public void Записать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
+       public void Записать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
         {
             _commonImpl.Write(buffer, positionInBuffer, number);
         }
@@ -110,7 +125,7 @@ namespace onesharp.Binary
         /// Размер буфера, используемого при копировании.
         /// Если параметр не задан, то система подбирает размер буфера автоматически. </param>
         ///
-        public void КопироватьВ(object targetStream, int bufferSize = 0)
+        public void КопироватьВ(Поток targetStream, int bufferSize = 0)
         {
             _commonImpl.CopyTo(targetStream, bufferSize);
         }
@@ -125,7 +140,7 @@ namespace onesharp.Binary
         ///  Количество байтов, на которое нужно передвинуть позицию в потоке. </param>
         /// <param name="initialPosition">
         ///  Начальная позиция, от которой отсчитывается смещение. </param>
-        /// <returns name="Number">
+        /// <returns name="number">
         ///  Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
         public long Перейти(int offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
         {
@@ -138,12 +153,7 @@ namespace onesharp.Binary
         /// Возвращает поток, который разделяет данные и текущую позицию с данным потоком, но не разрешает запись.
         /// </summary>
         ///
-
-        ///
-        /// <returns name="Stream">
-        /// Представляет собой поток данных, который можно последовательно читать и/или в который можно последовательно писать. 
-        /// Экземпляры объектов данного типа можно получить с помощью различных методов других объектов.</returns>
-
+        /// <returns name="Stream"></returns>
         ///
         public Поток ПолучитьПотокТолькоДляЧтения()
         {
@@ -169,7 +179,7 @@ namespace onesharp.Binary
         /// Возвращает число прочитанных байт
         /// </returns>
         /// 
-        public long Прочитать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
+         public long Прочитать(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
         {
             return _commonImpl.Read(buffer, positionInBuffer, number);
         }
@@ -202,8 +212,11 @@ namespace onesharp.Binary
         /// Возвращает текущую позицию в потоке.
         /// </summary>
         ///
+
         ///
-        /// <returns name="Number"/>
+        /// <returns name="number">
+        /// Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
+
         ///
         public long ТекущаяПозиция()
         {
@@ -234,6 +247,36 @@ namespace onesharp.Binary
         public Stream GetUnderlyingStream()
         {
             return _underlyingStream;
+        }
+
+        public static ФайловыйПоток Constructor(string filename, FileOpenModeEnum openMode, object bufferSize = null)
+        {
+            if (bufferSize == null || bufferSize is int)
+            {
+                return new ФайловыйПоток(
+                    filename,
+                    openMode,
+                    FileAccessEnum.ReadAndWrite,
+                    (int)bufferSize);
+            }
+            else
+            {
+                // перегрузка методов не позволяет вызвать второй конструктор без доуточнения реальных типов
+                return Constructor(
+                    filename,
+                    openMode,
+                    FileAccessEnum.ReadAndWrite,
+                    bufferSize);
+            }
+        }
+
+        public static ФайловыйПоток Constructor(string filename, FileOpenModeEnum openMode, FileAccessEnum access, object bufferSize = null)
+        {
+            return new ФайловыйПоток(
+                filename,
+                openMode,
+                access,
+                (int)bufferSize);
         }
     }
 }

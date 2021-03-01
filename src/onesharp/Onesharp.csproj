@@ -11,10 +11,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="useyourmind\" />
-    <Folder Include="Binary\" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="GenericStreamImpl.cs" />
     <Compile Remove="Binary\GenericStream.cs" />
   </ItemGroup>

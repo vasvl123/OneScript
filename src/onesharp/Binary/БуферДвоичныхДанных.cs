@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace onesharp
+namespace onesharp.Binary
 {
     /// <summary>
     /// 
@@ -44,29 +44,29 @@ namespace onesharp
         /// Порядок байтов.
         /// Значение по умолчанию: LittleEndian. </param>
         ///
-        public static БуферДвоичныхДанных Constructor(IValue size, IValue byteOrder = null)
+        public static БуферДвоичныхДанных Новый(int size, object byteOrder = null)
         {
-            var orderValue = byteOrder == null ? ByteOrderEnum.LittleEndian : ContextValuesMarshaller.ConvertParam<ByteOrderEnum>(byteOrder);
+            var orderValue = byteOrder == null ? ByteOrderEnum.LittleEndian : (ByteOrderEnum)byteOrder;
 
-            return new BinaryDataBuffer(
-                new byte[ContextValuesMarshaller.ConvertParam<int>(size)],
+            return new БуферДвоичныхДанных(
+                new byte[size],
                 orderValue);
         }
 
-        public override IValue GetIndexedValue(IValue index)
+        public int GetIndexedValue(int index)
         {
-            return ValueFactory.Create(Get((int) index.AsNumber()));
+            return Получить(index);
         }
 
-        public override void SetIndexedValue(IValue index, IValue val)
+        public void SetIndexedValue(int index, byte val)
         {
             ThrowIfReadonly();
 
-            int value = (int)val.AsNumber();
+            int value = val;
             if (value < byte.MinValue || value > byte.MaxValue)
                 throw RuntimeException.InvalidArgumentValue();
 
-            var idx = (int)index.AsNumber();
+            var idx = index;
             _buffer[idx] = (byte) value;
         }
 
@@ -75,7 +75,7 @@ namespace onesharp
         /// Текущий порядок байтов. Влияет на операции чтения и записи целых чисел в буфер.
         /// </summary>
         /// <value>ПорядокБайтов (ByteOrder)</value>
-        [ContextProperty("ПорядокБайтов", "ByteOrder")]
+        //[ContextProperty("ПорядокБайтов", "ByteOrder")]
         public ByteOrderEnum ByteOrder { get; set; }
 
         /// <summary>
@@ -83,16 +83,16 @@ namespace onesharp
         /// Размер буфера в байтах.
         /// </summary>
         /// <value>Число (Number)</value>
-        [ContextProperty("Размер", "Size")]
-        public long Size => _buffer.LongLength;
+        //[ContextProperty("Размер", "Size")]
+        public long Размер => _buffer.LongLength;
 
         /// <summary>
         /// 
         /// Значение Истина указывает, что данный буфер предназначен только для чтения.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        [ContextProperty("ТолькоЧтение", "ReadOnly")]
-        public bool ReadOnly
+        //[ContextProperty("ТолькоЧтение", "ReadOnly")]
+        public bool ТолькоЧтение
         {
             get { return _readOnly; }
 
@@ -110,8 +110,8 @@ namespace onesharp
         /// <param name="number">
         /// Количество байт, которые требуется заменить. </param>
         ///
-        [ContextMethod("Записать", "Write")]
-        public void Write(int position, BinaryDataBuffer bytes, int number = 0)
+        //[ContextMethod("Записать", "Write")]
+        public void Записать(int position, БуферДвоичныхДанных bytes, int number = 0)
         {
             ThrowIfReadonly();
 
@@ -121,20 +121,20 @@ namespace onesharp
                 Array.Copy(bytes._buffer, 0, _buffer, position, number);
         }
 
-        private byte[] GetBytes<T>(T value, Converter<T, byte[]> leConverter, Converter<T, byte[]> beConverter, IValue byteOrder = null)
+        private byte[] GetBytes<T>(T value, Converter<T, byte[]> leConverter, Converter<T, byte[]> beConverter, object byteOrder = null)
         {
             ByteOrderEnum workByteOrder;
             if (byteOrder == null)
                 workByteOrder = ByteOrder;
             else
             {
-                var enumVal = byteOrder.GetRawValue() as IObjectWrapper;
+                var enumVal = byteOrder;
                 if (enumVal == null)
                     throw RuntimeException.InvalidArgumentType(nameof(byteOrder));
 
                 try
                 {
-                    workByteOrder = (ByteOrderEnum)enumVal.UnderlyingObject;
+                    workByteOrder = (ByteOrderEnum)enumVal;
                 }
                 catch (InvalidCastException)
                 {
@@ -154,12 +154,12 @@ namespace onesharp
             }
         }
 
-        private static ulong AsUnsignedLong( IValue value, ulong maxValue=ulong.MaxValue )
+        private static ulong AsUnsignedLong( object value, ulong maxValue=ulong.MaxValue )
         {
-            if (value.DataType != DataType.Number)
+            if (!(value is ulong))
                 throw RuntimeException.InvalidArgumentType(2,nameof(value));
 
-            var number = value.AsNumber();
+            var number = (ulong)value;
             if ( number < 0 || number > maxValue || number != (ulong)number )
                 throw RuntimeException.InvalidArgumentValue(number);
 
@@ -182,8 +182,7 @@ namespace onesharp
         /// Значение по умолчанию: Неопределено. </param>
         ///
         ///
-        [ContextMethod("ЗаписатьЦелое16", "WriteInt16")]
-        public void WriteInt16(int position, IValue value, IValue byteOrder = null)
+        public void ЗаписатьЦелое16(int position, int value, object byteOrder = null)
         {
             ThrowIfReadonly();
 
@@ -205,8 +204,7 @@ namespace onesharp
         /// <param name="byteOrder">
         /// Порядок байтов, который будет использован для кодировки числа при записи в буфер. Если не установлен, то будет использован порядок байтов, заданный для текущего экземпляра БуферДвоичныхДанных.
         /// Значение по умолчанию: Неопределено. </param>
-        [ContextMethod("ЗаписатьЦелое32", "WriteInt32")]
-        public void WriteInt32(int position, IValue value, IValue byteOrder = null)
+        public void ЗаписатьЦелое32(int position, int value, object byteOrder = null)
         {
             ThrowIfReadonly();
 
@@ -233,8 +231,7 @@ namespace onesharp
         ///
 
         ///
-        [ContextMethod("ЗаписатьЦелое64", "WriteInt64")]
-        public void WriteInt64(int position, IValue value, IValue byteOrder = null)
+        public void ЗаписатьЦелое64(int position, ulong value, object byteOrder = null)
         {
             ThrowIfReadonly();
 
@@ -243,7 +240,7 @@ namespace onesharp
             CopyBytes(position, bytes);
         }
         
-        private void WriteBitwiseOp(int position, BinaryDataBuffer buffer, int number, Func<byte, byte, byte> op)
+        private void WriteBitwiseOp(int position, БуферДвоичныхДанных buffer, int number, Func<byte, byte, byte> op)
         {
             if(position < 0)
                 throw new IndexOutOfRangeException("Значение индекса выходит за границы диапазона");
@@ -274,8 +271,7 @@ namespace onesharp
         /// <param name="number">
         /// Количество байт, которые требуется объединить. </param>
         ///
-        [ContextMethod("ЗаписатьПобитовоеИ", "WriteBitwiseAnd")]
-        public void WriteBitwiseAnd(int position, BinaryDataBuffer bytes, int number = 0)
+        public void ЗаписатьПобитовоеИ(int position, БуферДвоичныхДанных bytes, int number = 0)
         {
             ThrowIfReadonly();
             WriteBitwiseOp(position, bytes, number, ((i, j) => (byte)(i & j)));
@@ -295,8 +291,7 @@ namespace onesharp
         /// <param name="number">
         /// Количество байт, которые требуется объединить. </param>
         ///
-        [ContextMethod("ЗаписатьПобитовоеИНе", "WriteBitwiseAndNot")]
-        public void WriteBitwiseAndNot(int position, BinaryDataBuffer bytes, int number = 0)
+        public void ЗаписатьПобитовоеИНе(int position, БуферДвоичныхДанных bytes, int number = 0)
         {
             ThrowIfReadonly();
             WriteBitwiseOp(position, bytes, number, ((i, j) => (byte)(i & ~j)));
@@ -316,8 +311,7 @@ namespace onesharp
         /// <param name="number">
         /// Количество байт, которые требуется объединить. </param>
         ///
-        [ContextMethod("ЗаписатьПобитовоеИли", "WriteBitwiseOr")]
-        public void WriteBitwiseOr(int position, BinaryDataBuffer bytes, int number = 0)
+        public void ЗаписатьПобитовоеИли(int position, БуферДвоичныхДанных bytes, int number = 0)
         {
             ThrowIfReadonly();
             WriteBitwiseOp(position, bytes, number, ((i, j) => (byte)(i | j)));
@@ -337,8 +331,7 @@ namespace onesharp
         /// <param name="number">
         /// Количество байт, которые требуется объединить. </param>
         ///
-        [ContextMethod("ЗаписатьПобитовоеИсключительноеИли", "WriteBitwiseXor")]
-        public void WriteBitwiseXor(int position, BinaryDataBuffer bytes, int number = 0)
+        public void ЗаписатьПобитовоеИсключительноеИли(int position, БуферДвоичныхДанных bytes, int number = 0)
         {
             ThrowIfReadonly();
             WriteBitwiseOp(position, bytes, number, ((i, j) => (byte)(i ^ j)));
@@ -352,11 +345,10 @@ namespace onesharp
         ///
         /// <returns name="BinaryDataBuffer"/>
         ///
-        [ContextMethod("Перевернуть", "Reverse")]
-        public BinaryDataBuffer Reverse()
+        public БуферДвоичныхДанных Перевернуть()
         {
             var bytes = _buffer.Reverse().ToArray();
-            return new BinaryDataBuffer(bytes, ByteOrder);
+            return new БуферДвоичныхДанных(bytes, ByteOrder);
         }
 
 
@@ -373,8 +365,7 @@ namespace onesharp
         /// Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
 
         ///
-        [ContextMethod("Получить", "Get")]
-        public int Get(int position)
+        public int Получить(int position)
         {
             return _buffer[position];
         }
@@ -396,8 +387,7 @@ namespace onesharp
         /// </returns>
 
         ///
-        [ContextMethod("ПолучитьСрез", "GetSlice")]
-        public BinaryDataBuffer GetSlice(int position, IValue number = null)
+        public БуферДвоичныхДанных ПолучитьСрез(int position, object number = null)
         {
             throw new NotImplementedException();
         }
@@ -415,28 +405,27 @@ namespace onesharp
         ///
         /// <returns name="BinaryDataBuffer"/>
         ///
-        [ContextMethod("Прочитать", "Read")]
-        public BinaryDataBuffer Read(int position, int number)
+        public БуферДвоичныхДанных Прочитать(int position, int number)
         {
             var data = new byte[number];
             Array.Copy(_buffer, position, data, 0, number);
-            return new BinaryDataBuffer(data, ByteOrder);
+            return new БуферДвоичныхДанных(data, ByteOrder);
         }
     
-        private T FromBytes<T>(int position, Func<byte[], int, T> leConverter, Func<byte[], int, T> beConverter, IValue byteOrder = null)
+        private T FromBytes<T>(int position, Func<byte[], int, T> leConverter, Func<byte[], int, T> beConverter, object byteOrder = null)
         {
             ByteOrderEnum workByteOrder;
             if (byteOrder == null)
                 workByteOrder = ByteOrder;
             else
             {
-                var enumVal = byteOrder.GetRawValue() as IObjectWrapper;
+                var enumVal = (ByteOrderEnum)byteOrder;
                 if (enumVal == null)
                     throw RuntimeException.InvalidArgumentType(nameof(byteOrder));
 
                 try
                 {
-                    workByteOrder = (ByteOrderEnum)enumVal.UnderlyingObject;
+                    workByteOrder = (ByteOrderEnum)enumVal;
                 }
                 catch (InvalidCastException)
                 {
@@ -462,8 +451,7 @@ namespace onesharp
         ///
         /// <returns name="Number"/>
         ///
-        [ContextMethod("ПрочитатьЦелое16", "ReadInt16")]
-        public int ReadInt16(int position, IValue byteOrder = null)
+        public int ПрочитатьЦелое16(int position, object byteOrder = null)
         {
             return FromBytes(position, BitConversionFacility.LittleEndian.ToInt16, BitConversionFacility.BigEndian.ToInt16, byteOrder);
         }
@@ -485,10 +473,9 @@ namespace onesharp
         /// Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
 
         ///
-        [ContextMethod("ПрочитатьЦелое32", "ReadInt32")]
-        public uint ReadInt32(int position, IValue byteOrder = null)
+        public int ПрочитатьЦелое32(int position, object byteOrder = null)
         {
-            return FromBytes(position, BitConversionFacility.LittleEndian.ToUInt32, BitConversionFacility.BigEndian.ToUInt32, byteOrder);
+            return (int)FromBytes(position, BitConversionFacility.LittleEndian.ToUInt32, BitConversionFacility.BigEndian.ToUInt32, byteOrder);
         }
 
 
@@ -508,8 +495,7 @@ namespace onesharp
         /// Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
 
         ///
-        [ContextMethod("ПрочитатьЦелое64", "ReadInt64")]
-        public ulong ReadInt64(int position, IValue byteOrder = null)
+        public ulong ПрочитатьЦелое64(int position, object byteOrder = null)
         {
             return FromBytes(position, BitConversionFacility.LittleEndian.ToUInt64, BitConversionFacility.BigEndian.ToUInt64, byteOrder);
         }
@@ -531,8 +517,7 @@ namespace onesharp
         ///
         /// <returns name="Array"/>
         ///
-        [ContextMethod("Разделить", "Split")]
-        public IValue Split(IValue separator)
+        public object Разделить(object separator)
         {
             throw new NotImplementedException();
         }
@@ -545,12 +530,11 @@ namespace onesharp
         ///
         /// <returns name="BinaryDataBuffer"/>
         ///
-        [ContextMethod("Скопировать", "Copy")]
-        public BinaryDataBuffer Copy()
+        public БуферДвоичныхДанных Скопировать()
         {
             byte[] copy = new byte[_buffer.Length];
             Array.Copy(_buffer, copy, _buffer.Length);
-            return new BinaryDataBuffer(copy, ByteOrder);
+            return new БуферДвоичныхДанных(copy, ByteOrder);
         }
 
 
@@ -564,8 +548,7 @@ namespace onesharp
         ///
         /// <returns name="BinaryDataBuffer"/>
         ///
-        [ContextMethod("Соединить", "Concat")]
-        public BinaryDataBuffer Concat(BinaryDataBuffer buffer)
+        public БуферДвоичныхДанных Соединить(БуферДвоичныхДанных buffer)
         {
             var source = buffer._buffer;
             var totalLength = _buffer.Length + source.Length;
@@ -573,7 +556,7 @@ namespace onesharp
             Array.Copy(_buffer, joinedArray, _buffer.Length);
             Array.Copy(source, 0, joinedArray, _buffer.Length, source.Length);
 
-            return new BinaryDataBuffer(joinedArray, ByteOrder);
+            return new БуферДвоичныхДанных(joinedArray, ByteOrder);
         }
 
 
@@ -587,8 +570,7 @@ namespace onesharp
         /// <param name="value">
         /// Значение, которое требуется установить в заданную позицию буфера.
         /// Если значение больше 255 или меньше 0, будет выдана ошибка о неверном значении параметра. </param>
-        [ContextMethod("Установить", "Set")]
-        public void Set(int position, IValue value)
+        public void Установить(int position, byte value)
         {
             ThrowIfReadonly();
 
@@ -606,8 +588,7 @@ namespace onesharp
         ///
 
         ///
-        [ContextMethod("УстановитьТолькоЧтение", "SetReadOnly")]
-        public void SetReadOnly()
+        public void УстановитьТолькоЧтение()
         {
             _readOnly = true;
         }
@@ -617,16 +598,11 @@ namespace onesharp
             return _buffer.Length;
         }
 
-        public CollectionEnumerator GetManagedIterator()
-        {
-            return new CollectionEnumerator(GetEnumerator());
-        }
-
-        private IEnumerator<IValue> GetEnumerator()
+        private IEnumerator<byte> GetEnumerator()
         {
             for (long i = 0; i < _buffer.LongLength; i++)
             {
-                yield return ValueFactory.Create(_buffer[i]);
+                yield return _buffer[i];
             }
         }
 

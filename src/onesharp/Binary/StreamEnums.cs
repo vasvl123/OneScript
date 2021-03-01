@@ -36,14 +36,14 @@ namespace onesharp
     }
 
     //[EnumerationType("ПозицияВПотоке", "StreamPosition")]
-    public enum StreamPositionEnum
+    public enum ПозицияВПотоке
     {
         //[EnumItem("Начало")]
-        Begin,
+        Начало,
         //[EnumItem("Конец")]
-        End,
+        Конец,
         //[EnumItem("Текущая")]
-        Current
+        Текущая
     }
 
     //[EnumerationType("ПорядокБайтов", "ByteOrder")]

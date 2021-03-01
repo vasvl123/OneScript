@@ -8,17 +8,13 @@ at http://mozilla.org/MPL/2.0/.
 using System;
 using System.IO;
 
-using ScriptEngine.Machine;
-using ScriptEngine.Machine.Contexts;
-
-namespace ScriptEngine.HostedScript.Library.Binary
+namespace onesharp.Binary
 {
     /// <summary>
     /// 
     /// Предоставляет методы для использования в типовых сценариях работы с файлами.
     /// </summary>
-    [ContextClass("МенеджерФайловыхПотоков", "FileStreamsManager")]
-    public class FileStreamsManager : AutoContext<FileStreamsManager>
+    public class МенеджерФайловыхПотоков
     {
 
         public static FileMode ConvertFileOpenModeToCLR(FileOpenModeEnum value)
@@ -56,7 +52,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
             }
         }
 
-        public FileStreamsManager()
+        public МенеджерФайловыхПотоков()
         {
         }
 
@@ -81,13 +77,12 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Размер буфера можно изменить, в том числе - полностью отключить буферизацию при вызове конструктора. 
         /// Следует учитывать, что помимо буферизации существует кэширование чтения и записи файлов в операционной системе, на которое невозможно повлиять программно.</returns>
         ///
-        [ContextMethod("Открыть", "Open")]
-        public FileStreamContext Open(IValue fileName, IValue openingMode, IValue fileAccess = null, IValue bufferSize = null)
+        public ФайловыйПоток Открыть(string fileName, FileOpenModeEnum openingMode, FileAccessEnum fileAccess, object bufferSize = null)
         {
             if(bufferSize == null)
-                return FileStreamContext.Constructor(fileName, openingMode, fileAccess);
+                return ФайловыйПоток.Constructor(fileName, openingMode, fileAccess);
             else
-                return FileStreamContext.Constructor(fileName, openingMode, fileAccess, bufferSize);
+                return ФайловыйПоток.Constructor(fileName, openingMode, fileAccess, bufferSize);
         }
 
 
@@ -99,10 +94,9 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// <param name="fileName">
         /// Имя открываемого файла. </param>
         /// 
-        [ContextMethod("ОткрытьДляДописывания", "OpenForAppend")]
-        public FileStreamContext OpenForAppend(string fileName)
+        public ФайловыйПоток ОткрытьДляДописывания(string fileName)
         {
-            return new FileStreamContext(fileName, FileOpenModeEnum.Append, FileAccessEnum.ReadAndWrite);
+            return new ФайловыйПоток(fileName, FileOpenModeEnum.Append, FileAccessEnum.ReadAndWrite);
         }
 
 
@@ -122,11 +116,10 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Следует учитывать, что помимо буферизации существует кэширование чтения и записи файлов в операционной системе, на которое невозможно повлиять программно.</returns>
 
         ///
-        [ContextMethod("ОткрытьДляЗаписи", "OpenForWrite")]
-        public FileStreamContext OpenForWrite(string fileName)
+        public static ФайловыйПоток ОткрытьДляЗаписи(string fileName)
         {
             // TODO: Судя по описанию - открывается без обрезки (Truncate). Надо проверить в 1С.
-            return new FileStreamContext(fileName, FileOpenModeEnum.OpenOrCreate, FileAccessEnum.Write);
+            return new ФайловыйПоток(fileName, FileOpenModeEnum.OpenOrCreate, FileAccessEnum.Write);
         }
 
 
@@ -140,10 +133,9 @@ namespace ScriptEngine.HostedScript.Library.Binary
         ///
         /// <returns name="FileStream"/>
         ///
-        [ContextMethod("ОткрытьДляЧтения", "OpenForRead")]
-        public FileStreamContext OpenForRead(string fileName)
+        public static ФайловыйПоток ОткрытьДляЧтения(string fileName)
         {
-            return new FileStreamContext(fileName, FileOpenModeEnum.Open, FileAccessEnum.Read);
+            return new ФайловыйПоток(fileName, FileOpenModeEnum.Open, FileAccessEnum.Read);
         }
 
 
@@ -158,10 +150,9 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Размер буфера. </param>
         ///
         /// <returns name="FileStream"/>
-        [ContextMethod("Создать", "Create")]
-        public IValue Create(string fileName, int bufferSize = 0)
+        public ФайловыйПоток Создать(string fileName, int bufferSize = 0)
         {
-            return new FileStreamContext(fileName, new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read, bufferSize == 0 ? 8192 : bufferSize));
+            return new ФайловыйПоток(fileName, new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read, bufferSize == 0 ? 8192 : bufferSize));
         }
 
 
@@ -179,8 +170,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         ///
         /// <returns name="FileStream"/>
         /// 
-        [ContextMethod("СоздатьВременныйФайл", "CreateTempFile")]
-        public IValue CreateTempFile(int memoryLimit = 0, int bufferSize = 0)
+        public object СоздатьВременныйФайл(int memoryLimit = 0, int bufferSize = 0)
         {
             throw new NotImplementedException();
         }

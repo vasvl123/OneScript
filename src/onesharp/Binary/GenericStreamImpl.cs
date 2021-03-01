@@ -7,7 +7,7 @@ at http://mozilla.org/MPL/2.0/.
 
 using System.IO;
 
-namespace onesharp
+namespace onesharp.Binary
 {
     internal class GenericStreamImpl
     {
@@ -37,15 +37,15 @@ namespace onesharp
                 _underlyingStream.CopyTo(stream, bufferSize);
         }
 
-        public long Seek(int offset, StreamPositionEnum initialPosition = StreamPositionEnum.Begin)
+        public long Seek(int offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
         {
             SeekOrigin origin;
             switch (initialPosition)
             {
-                case StreamPositionEnum.End:
+                case ПозицияВПотоке.Конец:
                     origin = SeekOrigin.End;
                     break;
-                case StreamPositionEnum.Current:
+                case ПозицияВПотоке.Текущая:
                     origin = SeekOrigin.Current;
                     break;
                 default:

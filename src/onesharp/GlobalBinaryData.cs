@@ -6,6 +6,7 @@ at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 
 using System;
+using onesharp.Binary;
 
 namespace onesharp
 {
@@ -37,7 +38,7 @@ namespace onesharp
         /// </summary>
         /// <param name="array">Массив объектов типа ДвоичныеДанные.</param>
         /// <returns>Тип: ДвоичныеДанные.</returns>
-        public ДвоичныеДанные СоединитьДвоичныеДанные(Массив array)
+        public static ДвоичныеДанные СоединитьДвоичныеДанные(Массив array)
         {
             // Сделано на int т.к. BinaryContext.Size имеет тип int;
 
@@ -60,7 +61,7 @@ namespace onesharp
         /// <param name="data">Объект типа ДвоичныеДанные.</param>
         /// <param name="size">Размер одной части данных.</param>
         /// <returns>Массив объектов типа ДвоичныеДанные.</returns>
-        public Массив РазделитьДвоичныеДанные(ДвоичныеДанные data, int size)
+        public static Массив РазделитьДвоичныеДанные(ДвоичныеДанные data, int size)
         {
             // Сделано на int т.к. BinaryContext.Size имеет тип int;
             Массив array = new Массив();
@@ -89,29 +90,28 @@ namespace onesharp
         /// <param name="encoding">Кодировка текста</param>
         /// <param name="addBOM">Определяет, будет ли добавлена метка порядка байт (BOM) кодировки текста в начало данных.</param>
         /// <returns>Тип: ДвоичныеДанные.</returns>
-        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string str, IValue encoding = null, bool addBOM = false)
+        public static ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string str, string encoding = null, bool addBOM = false)
         {
             // Получаем кодировку
             // Из синтаксис помощника если кодировка не задана используем UTF8
 
             System.Text.Encoding enc = System.Text.Encoding.UTF8;
             if (encoding != null)
-                enc = TextEncodingEnum.GetEncoding(encoding, addBOM);
+                enc = КодировкаТекста.GetEncoding(encoding, addBOM);
 
-            return new BinaryDataContext(enc.GetBytes(str));
+            return new ДвоичныеДанные(enc.GetBytes(str));
         }
 
         // ToDo: ПолучитьБуферДвоичныхДанныхИзСтроки 
 
-        [ContextMethod("ПолучитьСтрокуИзДвоичныхДанных")]
-        public string GetStringFromBinaryData(BinaryDataContext data, IValue encoding = null)
+        public static string ПолучитьСтрокуИзДвоичныхДанных(ДвоичныеДанные data, string encoding = null)
         {
             // Получаем кодировку
             // Из синтаксис помощника если кодировка не задана используем UTF8
 
             System.Text.Encoding enc = System.Text.Encoding.UTF8;
             if (encoding != null)
-                enc = TextEncodingEnum.GetEncoding(encoding);
+                enc = КодировкаТекста.GetEncoding(encoding);
 
             return enc.GetString(data.Buffer);
         }
@@ -124,16 +124,14 @@ namespace onesharp
         /// </summary>
         /// <param name="str">Строка в формате Base64.</param>
         /// <returns>Тип: ДвоичныеДанные.</returns>
-        [ContextMethod("ПолучитьДвоичныеДанныеИзBase64Строки")]
-        public BinaryDataContext GetBinaryDataFromBase64String(string str)
+        public static ДвоичныеДанные ПолучитьДвоичныеДанныеИзBase64Строки(string str)
         {
-            return new BinaryDataContext(System.Convert.FromBase64String(str));
+            return new ДвоичныеДанные(System.Convert.FromBase64String(str));
         }
 
         // ToDo: ПолучитьБуферДвоичныхДанныхИзBase64Строки
 
-        [ContextMethod("ПолучитьBase64СтрокуИзДвоичныхДанных")]
-        public string GetBase64StringFromBinaryData(BinaryDataContext data)
+        public static string ПолучитьBase64СтрокуИзДвоичныхДанных(ДвоичныеДанные data)
         {
             return System.Convert.ToBase64String(data.Buffer);
         }
@@ -153,10 +151,9 @@ namespace onesharp
         /// </summary>
         /// <param name="hex">Строка в формате Base 16 (Hex).</param>
         /// <returns>Тип: ДвоичныеДанные.</returns>
-        [ContextMethod("ПолучитьДвоичныеДанныеИзHexСтроки")]
-        public BinaryDataContext GetBinaryDataFromHexString(string hex)
+        public static ДвоичныеДанные ПолучитьДвоичныеДанныеИзHexСтроки(string hex)
         {
-            return new BinaryDataContext(StringToByteArray(hex));
+            return new ДвоичныеДанные(StringToByteArray(hex));
         }
         
         /// <summary>
@@ -164,10 +161,9 @@ namespace onesharp
         /// </summary>
         /// <param name="hex">Строка в формате Base 16 (Hex).</param>
         /// <returns>Тип: БуферДвоичныхДанных.</returns>
-        [ContextMethod("ПолучитьБуферДвоичныхДанныхИзHexСтроки")]
-        public BinaryDataBuffer GetBinaryDataBufferFromHexString(string hex)
+        public static БуферДвоичныхДанных ПолучитьБуферДвоичныхДанныхИзHexСтроки(string hex)
         {
-            return new BinaryDataBuffer(StringToByteArray(hex));
+            return new БуферДвоичныхДанных(StringToByteArray(hex));
         }
         
         /// <summary>
@@ -175,8 +171,7 @@ namespace onesharp
         /// </summary>
         /// <param name="data">Двоичные данные.</param>
         /// <returns>Тип: Строка.</returns>
-        [ContextMethod("ПолучитьHexСтрокуИзДвоичныхДанных")]
-        public string GetHexStringFromBinaryData(BinaryDataContext data)
+        public static string ПолучитьHexСтрокуИзДвоичныхДанных(ДвоичныеДанные data)
         {
             return BitConverter.ToString(data.Buffer).Replace("-","");
         }
@@ -186,8 +181,7 @@ namespace onesharp
         /// </summary>
         /// <param name="buffer">Буфер двоичных данных.</param>
         /// <returns>Тип: Строка.</returns>
-        [ContextMethod("ПолучитьHexСтрокуИзБуфераДвоичныхДанных")]
-        public string GetHexStringFromBinaryDataBuffer(BinaryDataBuffer buffer)
+        public static string ПолучитьHexСтрокуИзБуфераДвоичныхДанных(БуферДвоичныхДанных buffer)
         {
             return BitConverter.ToString(buffer.Bytes).Replace("-","");
         }
@@ -205,10 +199,9 @@ namespace onesharp
         /// </summary>
         /// <param name="data">Двоичные данные.</param>
         /// <returns>Тип: БуферДвоичныхДанных.</returns>
-        [ContextMethod("ПолучитьБуферДвоичныхДанныхИзДвоичныхДанных")]
-        public BinaryDataBuffer GetBinaryDataBufferFromBinaryData(BinaryDataContext data)
+        public static БуферДвоичныхДанных ПолучитьБуферДвоичныхДанныхИзДвоичныхДанных(ДвоичныеДанные data)
         {
-            return new BinaryDataBuffer(data.Buffer);
+            return new БуферДвоичныхДанных(data.Buffer);
         }
 
         /// <summary>
@@ -216,10 +209,9 @@ namespace onesharp
         /// </summary>
         /// <param name="buffer">Буфер двоичных данных.</param>
         /// <returns>Тип: ДвоичныеДанные.</returns>
-        [ContextMethod("ПолучитьДвоичныеДанныеИзБуфераДвоичныхДанных")]
-        public BinaryDataContext GetBinaryDataFromBinaryDataBuffer(BinaryDataBuffer buffer)
+        public static ДвоичныеДанные ПолучитьДвоичныеДанныеИзБуфераДвоичныхДанных(БуферДвоичныхДанных buffer)
         {
-            return new BinaryDataContext(buffer.Bytes);
+            return new ДвоичныеДанные(buffer.Bytes);
         }
 
     }

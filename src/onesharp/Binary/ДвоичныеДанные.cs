@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace onesharp
+namespace onesharp.Binary
 {
     public class ДвоичныеДанные : IDisposable
     {

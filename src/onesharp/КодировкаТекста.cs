@@ -8,102 +8,8 @@ using System.Text;
 
 namespace onesharp
 {
-    [SystemEnum("КодировкаТекста", "TextEncoding")]
-    public class TextEncodingEnum : EnumerationContext
+    public static class КодировкаТекста
     {
-        private const string ENCODING_ANSI = "ANSI";
-        private const string ENCODING_OEM = "OEM";
-        private const string ENCODING_UTF16 = "UTF16";
-        private const string ENCODING_UTF8 = "UTF8";
-        private const string ENCODING_UTF8NoBOM = "UTF8NoBOM";
-        private const string ENCODING_SYSTEM = "Системная";
-
-        private TextEncodingEnum(TypeDescriptor typeRepresentation, TypeDescriptor valuesType)
-            : base(typeRepresentation, valuesType)
-        {
-        }
-
-        [EnumValue(ENCODING_ANSI)]
-        public EnumerationValue Ansi
-        {
-            get
-            {
-                return this[ENCODING_ANSI];
-            }
-        }
-
-        [EnumValue(ENCODING_OEM)]
-        public EnumerationValue Oem
-        {
-            get
-            {
-                return this[ENCODING_OEM];
-            }
-        }
-
-        [EnumValue(ENCODING_UTF16)]
-        public EnumerationValue Utf16
-        {
-            get
-            {
-                return this[ENCODING_UTF16];
-            }
-        }
-
-        [EnumValue(ENCODING_UTF8)]
-        public EnumerationValue Utf8
-        {
-            get
-            {
-                return this[ENCODING_UTF8];
-            }
-        }
-
-        [EnumValue(ENCODING_UTF8NoBOM)]
-        public EnumerationValue Utf8NoBOM
-        {
-            get
-            {
-                return this[ENCODING_UTF8NoBOM];
-            }
-        }
-
-        [EnumValue(ENCODING_SYSTEM, "System")]
-        public EnumerationValue System
-        {
-            get
-            {
-                return this[ENCODING_SYSTEM];
-            }
-        }
-
-        public EnumerationValue GetValue(Encoding encoding)
-        {
-            if (encoding.Equals(Encoding.GetEncoding(866)))
-                return Oem;
-
-            if (encoding.Equals(Encoding.GetEncoding(1251)))
-                return Ansi;
-
-            if (encoding.Equals(new UnicodeEncoding(false, true)))
-                return Utf16;
-
-            if (encoding.Equals(new UTF8Encoding(true)))
-                return Utf8;
-
-            if (encoding.Equals(new UTF8Encoding(false)))
-                return Utf8NoBOM;
-
-            if (encoding.Equals(Encoding.Default))
-                return System;
-
-            throw RuntimeException.InvalidArgumentValue();
-        }
-
-        public static TextEncodingEnum CreateInstance()
-        {
-            return EnumContextHelper.CreateEnumInstance<TextEncodingEnum>((t,v)=>new TextEncodingEnum(t,v));
-        }
 
         public static Encoding GetEncodingByName(string encoding, bool addBOM = true)
         {
@@ -149,39 +55,9 @@ namespace onesharp
             return enc;
         }
 
-        public static Encoding GetEncoding(IValue encoding, bool addBOM = true)
+        public static Encoding GetEncoding(string encoding, bool addBOM = true)
         {
-            if (encoding.DataType == DataType.String)
-                return GetEncodingByName(encoding.AsString(), addBOM);
-            else
-            {
-                if (encoding.DataType != DataType.GenericValue)
-                    throw RuntimeException.InvalidArgumentType();
-
-                var encValue = encoding.GetRawValue() as SelfAwareEnumValue<TextEncodingEnum>;
-                if (encValue == null)
-                    throw RuntimeException.InvalidArgumentType();
-
-                var encodingEnum = GlobalsManager.GetEnum<TextEncodingEnum>();
-
-                Encoding enc;
-                if (encValue == encodingEnum.Ansi)
-                    enc = Encoding.GetEncoding(1251);
-                else if (encValue == encodingEnum.Oem)
-                    enc = Encoding.GetEncoding(866);
-                else if (encValue == encodingEnum.Utf16)
-                    enc = new UnicodeEncoding(false, addBOM);
-                else if (encValue == encodingEnum.Utf8)
-                    enc = new UTF8Encoding(addBOM);
-                else if (encValue == encodingEnum.Utf8NoBOM)
-                    enc = new UTF8Encoding(false);
-                else if (encValue == encodingEnum.System)
-                    enc = Encoding.Default;
-                else
-                    throw RuntimeException.InvalidArgumentValue();
-
-                return enc;
-            }
+            return GetEncodingByName(encoding, addBOM);
         }
     }
 }

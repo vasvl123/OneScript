@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 
 
-namespace ScriptEngine.HostedScript.Library.Binary
+namespace onesharp.Binary
 {
     /// <summary>
     ///     Converts base data types to an array of bytes, and an array of bytes to base

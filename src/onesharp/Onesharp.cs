@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 
+using onesharp.Binary;
+
 namespace onesharp
 {
     public class Onesharp
@@ -324,56 +326,51 @@ namespace onesharp
 
         public ДвоичныеДанные СоединитьДвоичныеДанные(Массив arg)
         {
-            return new ДвоичныеДанные(_glbin.ConcatenateBinaryData(arg.Impl));
+            return GlobalBinaryData.СоединитьДвоичныеДанные(arg);
         }
 
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string arg, string enc)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString(arg, Знач(enc)));
-        }
-
-        public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(object arg, string enc)
-        {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString((string)Вернуть(arg), Знач(enc)));
+            return GlobalBinaryData.ПолучитьДвоичныеДанныеИзСтроки(arg, enc);
         }
 
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзСтроки(string arg)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromString(arg));
+            return GlobalBinaryData.ПолучитьДвоичныеДанныеИзСтроки(arg);
         }
 
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзБуфераДвоичныхДанных(БуферДвоичныхДанных arg)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromBinaryDataBuffer(arg.Impl));
+            return GlobalBinaryData.ПолучитьДвоичныеДанныеИзБуфераДвоичныхДанных(arg);
         }
 
         public БуферДвоичныхДанных ПолучитьБуферДвоичныхДанныхИзДвоичныхДанных(ДвоичныеДанные arg)
         {
-            return new БуферДвоичныхДанных(_glbin.GetBinaryDataBufferFromBinaryData(arg.Impl));
+            return GlobalBinaryData.ПолучитьБуферДвоичныхДанныхИзДвоичныхДанных(arg);
         }
 
         public string ПолучитьСтрокуИзДвоичныхДанных(ДвоичныеДанные arg)
         {
-            return _glbin.GetStringFromBinaryData(arg.Impl);
+            return GlobalBinaryData.ПолучитьСтрокуИзДвоичныхДанных(arg);
         }
         public ДвоичныеДанные ПолучитьДвоичныеДанныеИзBase64Строки(string arg)
         {
-            return new ДвоичныеДанные(_glbin.GetBinaryDataFromBase64String(arg));
+            return GlobalBinaryData.ПолучитьДвоичныеДанныеИзBase64Строки(arg);
         }
 
         public string ПолучитьBase64СтрокуИзДвоичныхДанных(ДвоичныеДанные data)
         {
-            return _glbin.GetBase64StringFromBinaryData(data.Impl);
+            return GlobalBinaryData.ПолучитьBase64СтрокуИзДвоичныхДанных(data);
         }
 
-        public string РаскодироватьСтроку(string encodedString, EnumerationValue codeType, IValue encoding = null)
+        public string РаскодироватьСтроку(string encodedString, СпособКодированияСтроки codeType, string encoding = null)
         {
-            return _miscf.DecodeString(encodedString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
+            return ПрочиеФункции.РаскодироватьСтроку(encodedString, codeType, encoding);
         }
 
-        public string КодироватьСтроку(string sourceString, EnumerationValue codeType, IValue encoding = null)
+        public string КодироватьСтроку(string sourceString, СпособКодированияСтроки codeType, string encoding = null)
         {
-            return _miscf.EncodeString(sourceString, codeType as SelfAwareEnumValue<StringEncodingMethodEnum>, encoding);
+            return ПрочиеФункции.КодироватьСтроку(sourceString, codeType, encoding);
         }
 
         public void ОсвободитьОбъект(object obj)

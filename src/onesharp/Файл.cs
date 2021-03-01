@@ -191,7 +191,7 @@ namespace onesharp
             return File.GetAttributes(ПолноеИмя);
         }
 
-        public static Файл Constructor(string name)
+        public static Файл Новый(string name)
         {
             return new Файл(name);
         }

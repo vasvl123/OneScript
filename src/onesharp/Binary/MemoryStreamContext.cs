@@ -6,18 +6,16 @@ at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------*/
 using System;
 using System.IO;
-using ScriptEngine.Machine;
-using ScriptEngine.Machine.Contexts;
 
-namespace ScriptEngine.HostedScript.Library.Binary
+namespace onesharp.Binary
 {
     /// <summary>
     /// 
     /// Представляет собой поток данных, который можно последовательно читать и/или в который можно последовательно писать. 
     /// Экземпляры объектов данного типа можно получить с помощью различных методов других объектов.
     /// </summary>
-    [ContextClass("ПотокВПамяти", "MemoryStream")]
-    public class MemoryStreamContext : AutoContext<MemoryStreamContext>, IDisposable, IStreamWrapper
+    //[ContextClass("ПотокВПамяти", "MemoryStream")]
+    public class MemoryStreamContext : IDisposable, IStreamWrapper
     {
         private readonly bool _shouldBeCopiedOnClose;
         private readonly MemoryStream _underlyingStream;
@@ -29,10 +27,10 @@ namespace ScriptEngine.HostedScript.Library.Binary
             _commonImpl = new GenericStreamImpl(_underlyingStream);
         }
 
-        MemoryStreamContext(BinaryDataBuffer bytes)
+        MemoryStreamContext(БуферДвоичныхДанных bytes)
         {
             _underlyingStream = new MemoryStream(bytes.Bytes);
-            _shouldBeCopiedOnClose = !bytes.ReadOnly;
+            _shouldBeCopiedOnClose = !bytes.ТолькоЧтение;
             _commonImpl = new GenericStreamImpl(_underlyingStream);
         }
 
@@ -51,16 +49,15 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// <param name="bufferOrCapacity">
         /// Буфер, на основании которого будет создан поток или начальная емкость будущего потока. </param>
         ///
-        [ScriptConstructor(Name = "По буферу или начальной емкости")]
-        public static MemoryStreamContext Constructor(IValue bufferOrCapacity)
+        //[ScriptConstructor(Name = "По буферу или начальной емкости")]
+        public static MemoryStreamContext Constructor(object bufferOrCapacity)
         {
-            if (bufferOrCapacity.DataType == DataType.Number)
+            if (bufferOrCapacity is int)
             {
-                return new MemoryStreamContext((int)bufferOrCapacity.AsNumber());
+                return new MemoryStreamContext((int)bufferOrCapacity);
             }
 
-            var memBuf = ContextValuesMarshaller.ConvertParam<BinaryDataBuffer>(bufferOrCapacity);
-            return new MemoryStreamContext(memBuf);
+            return new MemoryStreamContext((БуферДвоичныхДанных)bufferOrCapacity);
         }
 
         /// <summary>
@@ -69,7 +66,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// </summary>
         ///
         ///
-        [ScriptConstructor]
+        //[ScriptConstructor]
         public static MemoryStreamContext Constructor()
         {
             return new MemoryStreamContext();
@@ -82,7 +79,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Признак доступности записи в поток.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        [ContextProperty("ДоступнаЗапись", "CanWrite")]
+        //[ContextProperty("ДоступнаЗапись", "CanWrite")]
         public bool CanWrite => _underlyingStream.CanWrite;
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Признак доступности произвольного изменения позиции чтения/записи в потоке.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        [ContextProperty("ДоступноИзменениеПозиции", "CanSeek")]
+        //[ContextProperty("ДоступноИзменениеПозиции", "CanSeek")]
         public bool CanSeek => _underlyingStream.CanSeek;
 
 
@@ -99,7 +96,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Признак доступности чтения из потока.
         /// </summary>
         /// <value>Булево (Boolean)</value>
-        [ContextProperty("ДоступноЧтение", "CanRead")]
+        //[ContextProperty("ДоступноЧтение", "CanRead")]
         public bool CanRead => _underlyingStream.CanRead;
 
 
@@ -110,7 +107,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Выполняемое действие зависит от используемого типа потока.
         /// </summary>
         ///
-        [ContextMethod("Закрыть", "Close")]
+        //[ContextMethod("Закрыть", "Close")]
         public void Close()
         {
             _underlyingStream.Close();
@@ -130,8 +127,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// <param name="number">
         /// Количество байт, которые требуется записать. </param>
         ///
-        [ContextMethod("Записать", "Write")]
-        public void Write(BinaryDataBuffer buffer, int positionInBuffer, int number)
+        //[ContextMethod("Записать", "Write")]
+        public void Write(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
         {
             _commonImpl.Write(buffer, positionInBuffer, number);
         }
@@ -148,8 +145,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Размер буфера, используемого при копировании.
         /// Если параметр не задан, то система подбирает размер буфера автоматически. </param>
         ///
-        [ContextMethod("КопироватьВ", "CopyTo")]
-        public void CopyTo(IValue targetStream, int bufferSize = 0)
+        //[ContextMethod("КопироватьВ", "CopyTo")]
+        public void CopyTo(Поток targetStream, int bufferSize = 0)
         {
             _commonImpl.CopyTo(targetStream, bufferSize);
         }
@@ -166,8 +163,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         ///  Начальная позиция, от которой отсчитывается смещение. </param>
         /// <returns name="Number">
         ///  Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
-        [ContextMethod("Перейти", "Seek")]
-        public long Seek(int offset, StreamPositionEnum initialPosition = StreamPositionEnum.Begin)
+        //[ContextMethod("Перейти", "Seek")]
+        public long Seek(int offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
         {
             return _commonImpl.Seek(offset, initialPosition);
         }
@@ -180,8 +177,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         ///
         /// <returns name="Stream"/>
         ///
-        [ContextMethod("ПолучитьПотокТолькоДляЧтения", "GetReadonlyStream")]
-        public GenericStream GetReadonlyStream()
+        //[ContextMethod("ПолучитьПотокТолькоДляЧтения", "GetReadonlyStream")]
+        public Поток GetReadonlyStream()
         {
             return _commonImpl.GetReadonlyStream();
         }
@@ -205,8 +202,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Возвращает число прочитанных байт
         /// </returns>
         /// 
-        [ContextMethod("Прочитать", "Read")]
-        public long Read(BinaryDataBuffer buffer, int positionInBuffer, int number)
+        //[ContextMethod("Прочитать", "Read")]
+        public long Read(БуферДвоичныхДанных buffer, int positionInBuffer, int number)
         {
             return _commonImpl.Read(buffer, positionInBuffer, number);
         }
@@ -217,7 +214,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Получает размер данных в байтах.
         /// </summary>
         ///
-        [ContextMethod("Размер", "Size")]
+        //[ContextMethod("Размер", "Size")]
         public long Size()
         {
             return _commonImpl.Size();
@@ -229,7 +226,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Сбрасывает все промежуточные буферы и производит запись всех незаписанных данных в целевое устройство.
         /// </summary>
         ///
-        [ContextMethod("СброситьБуферы", "Flush")]
+        //[ContextMethod("СброситьБуферы", "Flush")]
         public void Flush()
         {
             _commonImpl.Flush();
@@ -247,7 +244,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
 
         ///
-        [ContextMethod("ТекущаяПозиция", "CurrentPosition")]
+        //[ContextMethod("ТекущаяПозиция", "CurrentPosition")]
         public long CurrentPosition()
         {
             return _commonImpl.CurrentPosition();
@@ -264,7 +261,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// <param name="size">
         /// Устанавливаемый размер потока. </param>
         /// 
-        [ContextMethod("УстановитьРазмер", "SetSize")]
+        //[ContextMethod("УстановитьРазмер", "SetSize")]
         public void SetSize(long size)
         {
             _commonImpl.SetSize(size);
@@ -274,8 +271,8 @@ namespace ScriptEngine.HostedScript.Library.Binary
         /// закрывает поток и возвращает результат в виде двоичных данных
         /// </summary>
         /// <returns></returns>
-        [ContextMethod("ЗакрытьИПолучитьДвоичныеДанные")]
-        public BinaryDataContext CloseAndGetBinaryData()
+        //[ContextMethod("ЗакрытьИПолучитьДвоичныеДанные")]
+        public ДвоичныеДанные CloseAndGetBinaryData()
         {
             byte[] bytes;
             if (_shouldBeCopiedOnClose)
@@ -292,7 +289,7 @@ namespace ScriptEngine.HostedScript.Library.Binary
 
             _underlyingStream.Close();
 
-            return new BinaryDataContext(bytes);
+            return new ДвоичныеДанные(bytes);
         }
 
         public void Dispose()

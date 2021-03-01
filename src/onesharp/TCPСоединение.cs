@@ -9,6 +9,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.IO;
 
+using onesharp.Binary;
+
 namespace onesharp
 {
     /// <summary>
