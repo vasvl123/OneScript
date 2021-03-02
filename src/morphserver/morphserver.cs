@@ -35,23 +35,31 @@ namespace onesharp
             return м;
         } // МассивИзСтроки()
 
+
         public class ТипПараметры : Структура
         {
-            public string Слова;
-            public int Позиция;
-            public string База;
+            public string Слова => (string)base["Слова"];
+            public int Позиция => (int)base["Позиция"];
+            public string База => (string)base["База"];
+
+            public ТипПараметры(string strProperties, params object[] values) : base(strProperties, values) { }
         }
 
         public class ТипЗапрос : Структура
         {
-            public string cmd;
-            public ТипПараметры Параметры;
+            public string cmd => (string)base["cmd"];
+            public ТипПараметры Параметры => (ТипПараметры)base["Параметры"];
+
+            public ТипЗапрос(string strProperties, params object[] values) : base(strProperties, values) { }
         }
+
         public class ТипРезультат : Структура
         {
-            public Массив Элементы;
-            public int Позиция;
-            public string База;
+            public Массив Элементы => (Массив)base["Элементы"];
+            public int Позиция => (int)base["Позиция"];
+            public string База => (string)base["База"];
+
+            public ТипРезультат(string strProperties, params object[] values) : base(strProperties, values) { }
         }
 
         public class ТипЗадача : Структура
@@ -61,12 +69,16 @@ namespace onesharp
             public ТипРезультат Результат;
             public string Ответ;
             public decimal ВремяНачало;
+
+            public ТипЗадача(string strProperties, params object[] values) : base(strProperties, values) { }
         }
 
         public class ТипОбратныйЗапрос : Структура
         {
             public string Хост;
             public int Порт;
+
+            public ТипОбратныйЗапрос(string strProperties, params object[] values) : base(strProperties, values) { }        
         }
 
         public class ТипЭлемент : Структура
@@ -74,6 +86,8 @@ namespace onesharp
             public int Соседний;
             public int Дочерний;
             public int Значение;
+
+            public ТипЭлемент(string strProperties, params object[] values) : base(strProperties, values) { }        
         }
 
         bool ВыполнитьЗадачу(ТипЗадача структЗадача)
@@ -767,8 +781,8 @@ namespace onesharp
 
                         if (!(Запрос == Неопределено))
                         {
-                            var структЗадача = ТипЗадача.Новый("ИдЗадачи, Запрос, Ответ, Результат, ВремяНачало", ПолучитьИД(), Запрос, Неопределено, Структура.Новый(), ТекущаяУниверсальнаяДатаВМиллисекундах());
-                            Задачи.Вставить(структЗадача.ИдЗадачи, структЗадача);
+                            var структЗадача = Структура.Новый("ИдЗадачи, Запрос, Ответ, Результат, ВремяНачало", ПолучитьИД(), Запрос, Неопределено, Структура.Новый(), ТекущаяУниверсальнаяДатаВМиллисекундах());
+                            Задачи.Вставить(структЗадача["ИдЗадачи"], структЗадача);
                             мЗадачи.Добавить(структЗадача);
                             //Сообщить("dataserver: всего задач " + Задачи.Количество());
                         }
