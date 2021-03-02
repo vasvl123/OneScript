@@ -23,6 +23,10 @@ namespace onesharp
             get { return Получить(key); }
             set { Вставить(key, value); }
         }
+        public DynObj this[DynObj d]
+        {
+            get { d._val = this;  return d; }
+        }
 
         public Структура(string strProperties, params object[] values)
         {
