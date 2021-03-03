@@ -9,32 +9,6 @@ using onesharp.Binary;
 namespace onesharp
 {
 
-    public class DynObj : DynamicObject
-    {
-        public DynObj() {}
-
-        public Структура _val;
-
-        public override bool TryGetMember(GetMemberBinder binder, out object result)
-        {
-            result = null;
-            if (_val.Свойство(binder.Name, out result))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        // установить свойство
-        public override bool TrySetMember(SetMemberBinder binder, object value)
-        {
-            _val.Вставить(binder.Name, value);
-            return true;
-        }
-
-    }
-
-
     public class Onesharp
     {
 

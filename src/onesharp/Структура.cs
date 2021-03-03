@@ -10,22 +10,44 @@ using System.Collections.Generic;
 
 namespace onesharp
 {
+    class DynObj : DynamicObject
+    {
+        public DynObj(Структура val) { _val = val; }
+
+        Структура _val;
+
+        public override bool TryGetMember(GetMemberBinder binder, out object result)
+        {
+            result = null;
+            if (_val.Свойство(binder.Name, out result))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // установить свойство
+        public override bool TrySetMember(SetMemberBinder binder, object value)
+        {
+            _val.Вставить(binder.Name, value);
+            return true;
+        }
+
+    }
     public class Структура : IEnumerable<object>
     {
         private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
 
-        public Структура()
-        {
-        }
+        public Структура() {}
+
+        DynObj _с = null;
+
+        public dynamic с { get { if (_с == null) { _с = new DynObj(this); } return _с; } }
 
         public object this[string key]
         {
             get { return Получить(key); }
             set { Вставить(key, value); }
-        }
-        public DynObj this[DynObj d]
-        {
-            get { d._val = this;  return d; }
         }
 
         public Структура(string strProperties, params object[] values)
