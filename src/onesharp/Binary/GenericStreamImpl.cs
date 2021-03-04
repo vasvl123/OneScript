@@ -37,7 +37,7 @@ namespace onesharp.Binary
                 _underlyingStream.CopyTo(stream, bufferSize);
         }
 
-        public long Seek(int offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
+        public long Seek(long offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
         {
             SeekOrigin origin;
             switch (initialPosition)

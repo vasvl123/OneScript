@@ -9,6 +9,7 @@ using System.IO;
 
 namespace onesharp.Binary
 {
+
     /// <summary>
     /// 
     /// Специализированная версия объекта Поток для работы данными, расположенными в файле на диске. Предоставляет возможность чтения из потока, записи в поток и изменения текущей позиции. 
@@ -125,7 +126,7 @@ namespace onesharp.Binary
         /// Размер буфера, используемого при копировании.
         /// Если параметр не задан, то система подбирает размер буфера автоматически. </param>
         ///
-        public void КопироватьВ(Поток targetStream, int bufferSize = 0)
+        public void КопироватьВ(object targetStream, int bufferSize = 0)
         {
             _commonImpl.CopyTo(targetStream, bufferSize);
         }
@@ -142,11 +143,10 @@ namespace onesharp.Binary
         ///  Начальная позиция, от которой отсчитывается смещение. </param>
         /// <returns name="number">
         ///  Числовым типом может быть представлено любое десятичное число. Над данными числового типа определены основные арифметические операции: сложение, вычитание, умножение и деление. Максимально допустимая разрядность числа 38 знаков.</returns>
-        public long Перейти(int offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
+        public long Перейти(long offset, ПозицияВПотоке initialPosition = ПозицияВПотоке.Начало)
         {
             return _commonImpl.Seek(offset, initialPosition);
         }
-
 
         /// <summary>
         /// 

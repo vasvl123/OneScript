@@ -154,12 +154,9 @@ namespace onesharp.Binary
             }
         }
 
-        private static ulong AsUnsignedLong( object value, ulong maxValue=ulong.MaxValue )
+        private static ulong AsUnsignedLong(object value, ulong maxValue=ulong.MaxValue )
         {
-            if (!(value is ulong))
-                throw RuntimeException.InvalidArgumentType(2,nameof(value));
-
-            var number = (ulong)value;
+            var number = Convert.ToUInt64(value);
             if ( number < 0 || number > maxValue || number != (ulong)number )
                 throw RuntimeException.InvalidArgumentValue(number);
 

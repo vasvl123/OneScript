@@ -300,6 +300,7 @@ namespace onesharp
 
         public static string Строка(object arg)
         {
+            if (arg is null) return "";
             return (string)Parse(arg, typeof(string));
         }
 
@@ -384,6 +385,22 @@ namespace onesharp
             }
         }
 
+        public void ЗапуститьПриложение(string cmdLine, string currentDir = null, bool wait = false, object retCode = null)
+        {
+
+            var sInfo = Процесс.PrepareProcessStartupInfo(cmdLine, currentDir);
+
+            var p = new System.Diagnostics.Process();
+            p.StartInfo = sInfo;
+                p.Start();
+
+                if(wait)
+                {
+                    p.WaitForExit();
+                    if(retCode != null)
+                        retCode = p.ExitCode;
+                }
+        }
 
     }
 }

@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="morphserver.cs" />
@@ -46,7 +46,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\onesharp\onesharp.csproj">
+    <ProjectReference Include="..\onesharp\Onesharp.csproj">
       <Project>{D8094841-0114-44ED-8137-D38F8DA889C1}</Project>
       <Name>Onesharp</Name>
     </ProjectReference>

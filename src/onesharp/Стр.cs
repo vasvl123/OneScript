@@ -18,6 +18,11 @@ namespace onesharp
             return str.Length;
         }
 
+        public static string Заменить(string sourceString, string searchVal, string newVal)
+        {
+            return sourceString.Replace(searchVal, newVal);
+        }
+
         /// <summary>
         /// Определяет, что строка начинается с указанной подстроки.
         /// </summary>

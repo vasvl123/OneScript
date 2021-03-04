@@ -13,5 +13,9 @@
   <ItemGroup>
     <Compile Remove="GenericStreamImpl.cs" />
     <Compile Remove="Binary\GenericStream.cs" />
+    <Compile Remove="Hash\HashFunctionEnum.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Hash\" />
   </ItemGroup>
 </Project>

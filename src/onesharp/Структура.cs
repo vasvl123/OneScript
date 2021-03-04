@@ -10,16 +10,16 @@ using System.Collections.Generic;
 
 namespace onesharp
 {
-    class DynObj : DynamicObject
+    public class Структура : DynamicObject, IEnumerable<object>
     {
-        public DynObj(Структура val) { _val = val; }
+        private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
 
-        Структура _val;
+        public Структура() {}
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
             result = null;
-            if (_val.Свойство(binder.Name, out result))
+            if (Свойство(binder.Name, out result))
             {
                 return true;
             }
@@ -29,20 +29,11 @@ namespace onesharp
         // установить свойство
         public override bool TrySetMember(SetMemberBinder binder, object value)
         {
-            _val.Вставить(binder.Name, value);
+            Вставить(binder.Name, value);
             return true;
         }
 
-    }
-    public class Структура : IEnumerable<object>
-    {
-        private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
-
-        public Структура() {}
-
-        DynObj _с = null;
-
-        public dynamic с { get { if (_с == null) { _с = new DynObj(this); } return _с; } }
+        public dynamic с { get {return this; } }
 
         public object this[string key]
         {
