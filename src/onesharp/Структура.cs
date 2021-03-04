@@ -33,7 +33,7 @@ namespace onesharp
             return true;
         }
 
-        public dynamic с { get {return this; } }
+        public dynamic с { get { return this; } }
 
         public object this[string key]
         {
@@ -109,7 +109,7 @@ namespace onesharp
             return null;
         }
 
-        public void Вставить(string key, object value)
+        public void Вставить(string key, object value = null)
         {
             if (!IsValidIdentifier(key))
                 throw InvalidPropertyNameException(key);
@@ -163,17 +163,12 @@ namespace onesharp
         #endregion 
 
 
-        public static Структура Constructor()
-        {
-            return new Структура();
-        }
-
-        /// <summary>
+         /// <summary>
         /// Создает структуру по фиксированной структуре
         /// </summary>
         /// <param name="fixedStruct">Исходная структура</param>
         //[ScriptConstructor(Name = "Из фиксированной структуры")]
-        private static Структура Constructor(Структура fixedStruct)
+        public static Структура Новый(Структура fixedStruct)
         {
             return new Структура(fixedStruct);
         }
@@ -184,7 +179,7 @@ namespace onesharp
         /// <param name="param1">Фиксированная структура либо строка с именами свойств, указанными через запятую.</param>
         /// <param name="args">Только для перечня свойств:
         /// Значения свойств. Каждое значение передается, как отдельный параметр.</param>
-        public static Структура Constructor(string param1, params object[] args)
+        public static Структура Новый(string param1, params object[] args)
         {
             return new Структура(param1, args);
         }
@@ -194,12 +189,7 @@ namespace onesharp
             return new Структура();
         }
 
-        public static Структура Новый(string param1, params object[] args)
-        {
-            return new Структура(param1, args);
-        }
-
-        private static RuntimeException InvalidPropertyNameException( string name )
+        private static RuntimeException InvalidPropertyNameException(string name )
         {
             return new RuntimeException($"Задано неправильное имя атрибута структуры '{name}'");
         }

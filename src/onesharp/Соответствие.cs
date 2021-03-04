@@ -44,7 +44,7 @@ namespace onesharp
             return null;
         }
 
-        public void Вставить(object key, object value)
+        public void Вставить(object key, object value = null)
         {
             _content.Remove(key);
             _content.Add(key, value);

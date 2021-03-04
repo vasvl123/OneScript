@@ -75,7 +75,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "morphserver", "morphserver\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "showdata", "showdata\showdata.csproj", "{75F6C10C-DF1B-4C30-B0BF-CC8F3368CD15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "onesharp", "onesharp\onesharp.csproj", "{A4242A88-B27F-47D5-A2E0-3A88F007A866}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Onesharp", "onesharp\Onesharp.csproj", "{A4242A88-B27F-47D5-A2E0-3A88F007A866}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

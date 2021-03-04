@@ -7,51 +7,17 @@
 
 using System;
 using System.Linq;
-using ScriptEngine;
-using ScriptEngine.HostedScript;
-using ScriptEngine.HostedScript.Library;
 
-namespace showdata
+namespace onesharp
 {
-
-    public class ApplicationHost : IHostApplication
-    {
-        public string[] CommandLineArguments { get; set; } = new string[0];
-
-        public void Echo(string text, MessageStatusEnum status = MessageStatusEnum.Ordinary)
-        {
-            ConsoleHostImpl.Echo(text, status);
-        }
-
-        public void ShowExceptionInfo(Exception exc)
-        {
-            ConsoleHostImpl.ShowExceptionInfo(exc);
-        }
-
-        public bool InputString(out string result, int maxLen)
-        {
-            return ConsoleHostImpl.InputString(out result, maxLen);
-        }
-
-        public string[] GetCommandLineArguments()
-        {
-            return CommandLineArguments;
-        }
-    }
-
 
     class MainClass
     {
 
         public static void Main(string[] args)
         {
-            var hostedScript = new HostedScriptEngine();
             var app = new showdata();
-            app._syscon = new SystemGlobalContext();
-            var host = new ApplicationHost();
-            string[] arg1 = { "8885" };
-            host.CommandLineArguments = arg1;
-            app._syscon.ApplicationHost = host;
+            app.АргументыКоманднойСтроки = args;
             app.Main();
         }
     }
