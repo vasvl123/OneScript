@@ -26,7 +26,7 @@ namespace onesharp
         public string[] АргументыКоманднойСтроки;
         public string ИмяМодуля;
 
-        public decimal ПолучитьИД()
+        public int ПолучитьИД()
         {
             МоментЗапуска -= 1;
             return Цел(ТекущаяУниверсальнаяДатаВМиллисекундах() - МоментЗапуска);
@@ -42,9 +42,9 @@ namespace onesharp
             System.Threading.Thread.Sleep(delay);
         }
 
-        public static decimal Цел(decimal val)
+        public static int Цел(decimal val)
         {
-            return Math.Truncate(val);
+            return (int)Math.Truncate(val);
         }
 
         public static decimal ТекущаяУниверсальнаяДатаВМиллисекундах()

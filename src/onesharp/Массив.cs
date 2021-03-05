@@ -28,6 +28,14 @@ namespace onesharp
             set { Вставить(index, value); }
         }
 
+        public object[] Arr
+        {
+            get
+            {
+                return _values.ToArray();
+            }
+        }
+
 
         #region ICollectionContext Members
         
@@ -176,12 +184,17 @@ namespace onesharp
 
         }
 
-        public static Массив Constructor(Массив fixedArray)
+        public static Массив Новый(Массив fixedArray)
         {
             if (!(fixedArray is Массив val))
                 throw new Exception("InvalidArgumentType");
-            
+
             return new Массив(val);
+        }
+
+        public static Массив Новый(object[] array)
+        {
+            return new Массив(array);
         }
 
         public static Массив Новый()

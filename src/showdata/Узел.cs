@@ -15,19 +15,18 @@ namespace onesharp
  
         public Узел() : base() {}
 
-        public dynamic с { get { return this; } }
         public dynamic д { get { return this["д"]; } }
+        public dynamic п { get { return this["п"]; } }
 
+        public string Код { get { return (string)Получить("Код"); } }
+        public string Имя { get { return (string)Получить("Имя"); } }
+        public object Значение { get { return Получить("Значение"); } set { Вставить("Значение", value); } }
 
-        public string Код { get { return (string)this["Код"]; } }
-        public string Имя { get { return (string)this["Имя"]; } }
-        public object Значение { get { return this["Значение"]; } set { this["Значение"] = value; } }
-
-        public Узел Дочерний { get { return (Узел)this["Дочерний"]; } set { this["Дочерний"] = value; } }
-        public Узел Соседний { get { return (Узел)this["Соседний"]; } set { this["Соседний"] = value; } }
-        public Узел Атрибут { get { return (Узел)this["Атрибут"]; } set { this["Атрибут"] = value; } }
-        public Узел Старший { get { return (Узел)this["Старший"]; } set { this["Старший"] = value; } }
-        public Узел Родитель { get { return (Узел)this["Родитель"]; } set { this["Родитель"] = value; } }
+        public Узел Дочерний { get { return Получить("Дочерний") as Узел; } set { Вставить("Дочерний", value); } }
+        public Узел Соседний { get { return Получить("Соседний") as Узел; } set { Вставить("Соседний", value); } }
+        public Узел Атрибут { get { return Получить("Атрибут") as Узел; } set { Вставить("Атрибут", value); } }
+        public Узел Старший { get { return Получить("Старший") as Узел; } set { Вставить("Старший", value); } }
+        public Узел Родитель { get { return Получить("Родитель") as Узел; } set { Вставить("Родитель", value); } }
 
         public Узел(Структура structure) : base(structure) { }
 
@@ -39,7 +38,7 @@ namespace onesharp
         /// </summary>
         /// <param name="fixedStruct">Исходная структура</param>
         //[ScriptConstructor(Name = "Из фиксированной структуры")]
-        private new static Узел Новый(Структура fixedStruct)
+        public new static Узел Новый(Структура fixedStruct)
         {
             return new Узел(fixedStruct);
         }
