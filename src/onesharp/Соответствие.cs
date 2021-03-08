@@ -29,8 +29,14 @@ namespace onesharp
                 _content.Add(kv.Ключ, kv.Значение);
             }
         }
-        
+
         #region ICollectionContext Members
+
+        public bool Содержит(object key)
+        {
+            if (key is null) return false;
+            return _content.ContainsKey(key);
+        }
 
         public object Получить(object key)
         {

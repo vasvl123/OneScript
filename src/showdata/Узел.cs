@@ -15,6 +15,8 @@ namespace onesharp
  
         public Узел() : base() {}
 
+        public Соответствие _с { get { return this["_с"] as Соответствие; } }
+        public Структура _д { get { return this["д"] as Структура; } }
         public dynamic д { get { return this["д"]; } }
         public dynamic п { get { return this["п"]; } }
 

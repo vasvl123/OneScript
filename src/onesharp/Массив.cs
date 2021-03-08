@@ -25,7 +25,7 @@ namespace onesharp
 
         public object this [int index] {
             get { return Получить(index); }
-            set { Вставить(index, value); }
+            set { Установить(index, value); }
         }
 
         public object[] Arr
