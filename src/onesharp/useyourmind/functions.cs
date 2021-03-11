@@ -74,7 +74,7 @@ namespace onesharp
                     }
                     else
                     {
-                        if (Значение is int) 
+                        if (Значение is int || Значение is decimal) 
                             Ключ = "!" + Ключ;
                         дЗначение = ПолучитьДвоичныеДанныеИзСтроки(Значение.ToString());
                     }

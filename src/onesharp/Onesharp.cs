@@ -29,7 +29,7 @@ namespace onesharp
         public int ПолучитьИД()
         {
             МоментЗапуска -= 1;
-            return Цел(ТекущаяУниверсальнаяДатаВМиллисекундах() - МоментЗапуска);
+            return (int)Цел(ТекущаяУниверсальнаяДатаВМиллисекундах() - МоментЗапуска);
         }
 
         public static void ВызватьИсключение(string msg)
@@ -42,9 +42,15 @@ namespace onesharp
             System.Threading.Thread.Sleep(delay);
         }
 
-        public static int Цел(decimal val)
+        public static object Цел(object n)
         {
-            return (int)Math.Truncate(val);
+            if (n is int) return n;
+            var m = Math.Truncate((decimal)n);
+            try {
+                return Decimal.ToInt32(m);
+            } catch {
+                return m;
+            }
         }
 
         public static decimal ТекущаяУниверсальнаяДатаВМиллисекундах()
@@ -267,7 +273,7 @@ namespace onesharp
 
                 try
                 {
-                    result = Decimal.Parse(presentation, numStyle, numInfo);
+                    result = Decimal.Parse(presentation, numStyle, CultureInfo.CurrentCulture);
                 }
                 catch (FormatException)
                 {
@@ -287,14 +293,8 @@ namespace onesharp
         public static object Число(object arg)
         {
             var n = (decimal)Parse(arg, typeof(decimal));
-            if (Math.Truncate(n) == n)
-            {
-                try
-                {
-                    return Decimal.ToInt32(n);
-                }
-                catch { }
-            }
+            var m = Цел(n);
+            if (m is int) if ((int)m == n) return m;
             return n;
         }
 
@@ -303,6 +303,16 @@ namespace onesharp
             if (arg is null) return "";
             return (string)Parse(arg, typeof(string));
         }
+
+        public static string ТипЗнч(object arg)
+        {
+            if (arg is int || arg is long || arg is ulong || arg is decimal) return "Число";
+            if (arg is string) return "Строка";
+            if (arg is bool) return "Булево";
+            if (arg is DateTime) return "Дата";
+            return "";
+        }
+
 
         public string ОписаниеОшибки(Exception e) { return ИмяМодуля + " ошибка!\n" + e.Message + "\n" + e.StackTrace; }
 
