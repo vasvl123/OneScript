@@ -185,15 +185,14 @@ namespace onesharp
                 return 0;
         }
 
-        public static string Шаблон(string[] arguments)
+        public static string Шаблон(string srcFormat, params string[] arguments)
         {
-            var srcFormat = arguments[0];
             if (srcFormat == String.Empty)
                 return "";
 
             var re = new System.Text.RegularExpressions.Regex(@"(%%)|(%\d+)|(%\D)");
             int matchCount = 0;
-            int passedArgsCount = arguments.Skip(1).Count(x => !(x is null));
+            int passedArgsCount = arguments.Count(x => !(x is null));
             var result = re.Replace(srcFormat, (m) =>
             {
                 if (m.Groups[1].Success)
