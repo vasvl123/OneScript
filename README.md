@@ -1,15 +1,10 @@
 # onesharp.net #
 
-## 1# - это класс-обёртка над библиотекой onescript ##
-
-Позволяет программировать на C# так же просто, как в 1С
-
-# OneScript #
-
-[![Join telegram chat](https://img.shields.io/badge/chat-telegram-blue?style=flat&logo=telegram)](https://t.me/oscript_library) [![DEV Build Status](https://build.oscript.io/buildStatus/icon?job=1Script%2Fdevelop&style=flat-square&subject=dev)](https://build.oscript.io/job/1Script/job/develop/) [![STABLE Build Status](https://build.oscript.io/buildStatus/icon?job=1Script%2Fmaster&style=flat-square&subject=stable)](https://build.oscript.io/job/1Script/job/master/)
+[![Join telegram chat](https://img.shields.io/badge/chat-telegram-blue?style=flat&logo=telegram)](https://t.me/onesharp.net)
 
 
-## Проект является независимой кросс-платформенной реализацией виртуальной машины, исполняющей скрипты на языке 1С:Предприятие ##
+## Проект является независимой кросс-платформенной библиотекой, позволяющей программировать на C# так же просто, как в 1С
+##
 
 При этом библиотеки системы 1С:Предприятие не используются и не требуется установка системы 1С:Предприятие на целевой машине.
 
@@ -17,37 +12,17 @@
 
 ## Название и произношение ##
 
-Проект носит название OneScript, может быть сокращен при написании до названия 1Script. Произносится как `[уанскрипт]`.
+Проект носит название onesharp.net, и может быть сокращен при написании до названия 1#. Произносится как `[уаншарп]`.
 
-OneScript позволяет создавать и выполнять текстовые сценарии, написанные на языке, знакомом любому специалисту по системе 1С:Предприятие. Применение знакомого языка для скриптовой автоматизации позволяет значительно повысить продуктивность специалиста за счет более простой автоматизации ручных операций.
+Библиотека onesharp.net позволяет программировать в C# любому специалисту по системе 1С:Предприятие. Применение объектов знакомого языка  позволяет упростить разработку и повысить качество программ за счет применения возможностей языка C#.
 
 ## Сайт проекта ##
 
-Основная информация о проекте, релизы и техдокументация расположены на официальном сайте
+Сайт проекта выполняется на собственном движке [useyourmind](https://github.com/vasvl123/useyourmind), написанном с использованием библиотеки onesharp.net.
 
-[https://oscript.io](https://oscript.io)
+[https://onesharp.net](https://onesharp.net)
 
-## Библиотека полезных скриптов ##
+## Развитие проекта ##
 
-В поставку OneScript уже входит набор наиболее часто используемых пакетов. Эти, а также другие пакеты находятся в репозитории [oscript-library](https://github.com/oscript-library) и доступны всем желающим. Имеется пакетный менеджер [opm](https://github.com/oscript-library/opm).
-
-## Установка ##
-
-### Windows ###
-
-- (интерактивно) скачать c [официального сайта](https://oscript.io) или установщик из раздела [Releases](https://github.com/EvilBeaver/OneScript/releases) и запустить его. Далее, Далее, Готово.
-
-### Linux ###
-
-- (интерактивно) скачать нужный пакет [официального сайта](https://oscript.io) или установщик из раздела [Releases](https://github.com/EvilBeaver/OneScript/releases) и установить его.
-
-### MacOS ###
-
-Интерактивного установщика нет, но движок можно установить из командной строки:
-
-- установить [homebrew](https://brew.sh/index_ru)
-- установить mono командой `brew install mono`
-- скачать [ovm](https://github.com/oscript-library/ovm/releases)
-- выполнить команду `mono ovm.exe install stable`
-- выполнить команду `mono ovm.exe use stable`
-- перезапустить терминал
+Поскольку библиотека onesharp.net использует наработки проекта [OneScript](https://github.com/EvilBeaver/OneScript),
+то всегда можно расширить возможности библиотеки за счет переноса классов из родственного проекта.
